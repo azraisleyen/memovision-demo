@@ -1,0 +1,92 @@
+{% extends "memoapp/dashboard_base.html" %}
+{% load static %}
+{% block title %}Analiz Detayı{% endblock %}
+
+{% block dashboard_content %}
+<div class="result-grid">
+    <div class="result-main">
+        <div class="video-player-card">
+            <div class="video-tabs">
+                <button class="mini-tab active">📊 Marka Haritası</button>
+                <button class="mini-tab">⭐ Öne Çıkan Anlar</button>
+            </div>
+
+            <!-- Video yerine thumbnail gösteriyoruz -->
+            <div class="video-thumbnail-stage">
+                {% if analysis.original_video %}
+                    <video
+                        id="analysisVideo"
+                        class="stage-video"
+                        controls
+                        preload="metadata"
+                        poster="{% if analysis.thumbnail %}{{ analysis.thumbnail.url }}{% endif %}"
+                    >
+                        <source src="{{ analysis.original_video.url }}">
+                        Tarayıcınız video etiketini desteklemiyor.
+                    </video>
+                {% else %}
+                    <div class="empty-stage">Video bulunamadı.</div>
+                {% endif %}
+            </div>
+
+        
+        </div>
+
+        <div class="timeline-card">
+            <div class="section-label">ZAMAN ÇİZGİSİ</div>
+            <div class="timeline-track">
+                <span class="tick blue"></span>
+                <span class="tick cyan"></span>
+                <span class="tick yellow"></span>
+                <span class="tick pink"></span>
+            </div>
+            <div class="timeline-meta">
+                <span>0:00</span>
+                <span>{{ analysis.duration_seconds|floatformat:0 }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="result-side">
+        <div class="score-side-card">
+            <div class="score-side-title">Video Hatırlanabilirliği</div>
+            <div class="side-score">0.66 <span>/1</span></div>
+            
+            
+        </div>
+
+        <div class="score-side-card">
+            <div class="score-side-title">Marka Hatırlanabilirliği</div>
+            <div class="side-score green">0.55 <span>/1</span></div>
+            
+            
+        </div>
+
+        <div class="heatmap-side-card">
+            <div class="panel-title">🔥 ISI HARİTASI</div>
+
+            {% if analysis.heatmap %}
+                <img src="{{ analysis.heatmap.url }}" alt="Heatmap" class="heatmap-image">
+            {% else %}
+                <div class="fake-heatmap small"></div>
+            {% endif %}
+        </div>
+
+        <div class="agent-side-card">
+            <div class="panel-title">🧠 Agent Önerileri</div>
+            <div class="agent-mini-box">
+                <div class="agent-small-title">📈 Tahmini Etki</div>
+                <div class="impact-pill">✓ Tümü uygulanırsa: +0.2 skor</div>
+            </div>
+
+            <div class="button-stack">
+                <!-- Rapor indirme aktif -->
+                <a href="{% url 'report_view' analysis.pk %}" class="secondary-btn full" target="_blank">
+                    📄 Raporu Görüntüle
+                </a>
+                <a href="{% url 'new_analysis' %}" class="secondary-btn full text-center">⟳ Yeni Video</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

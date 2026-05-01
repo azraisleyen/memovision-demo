@@ -1,0 +1,128 @@
+{% extends "memoapp/base.html" %}
+{% load static %}
+
+{% block content %}
+
+<!-- =========================================================
+    DASHBOARD LAYOUT (GLOBAL SHELL)
+    - Tüm dashboard sayfaları buradan türetilir
+========================================================= -->
+<div class="dashboard-shell">
+
+    <!-- =====================================================
+        SIDEBAR
+    ====================================================== -->
+    <aside class="sidebar">
+
+        <!-- ===============================
+            TOP SECTION (LOGO + NAV)
+        =============================== -->
+        <div>
+
+            <!-- LOGO -->
+            <div class="brand-box">
+
+                <div class="brand-icon">
+                    ▶
+                </div>
+
+                <div class="brand-title">
+                    MemoVision Pro
+                </div>
+
+            </div>
+
+
+            <!-- NAVIGATION -->
+            <nav class="sidebar-nav">
+
+                <!-- Yeni Analiz -->
+                <a href="{% url 'new_analysis' %}"
+                   class="nav-item {% if request.resolver_match.url_name in 'new_analysis dashboard analysis_detail' %}active{% endif %}">
+
+                    <span>⊕</span>
+                    Yeni Analiz
+
+                </a>
+
+
+                <!-- Geçmiş -->
+                <a href="{% url 'projects' %}"
+                   class="nav-item {% if request.resolver_match.url_name == 'projects' %}active{% endif %}">
+
+                    <span>🕘</span>
+                    Geçmiş Analizler
+
+                </a>
+
+            </nav>
+
+        </div>
+
+
+        <!-- ===============================
+            BOTTOM SECTION (PLAN + SETTINGS)
+        =============================== -->
+        <div>
+
+            <!-- PLAN CARD -->
+            <div class="plan-card">
+
+                <div class="plan-title">
+                    Pro Plan
+                </div>
+
+                <div class="plan-sub">
+                    42 / 100 analiz kullanıldı
+                </div>
+
+                <!-- Progress bar -->
+                <div class="progress-bar">
+                    <div class="progress-fill"
+                         style="width:42%">
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- SETTINGS + LOGOUT -->
+            <div class="sidebar-nav bottom-nav">
+
+                <a href="{% url 'settings_page' %}"
+                   class="nav-item {% if request.resolver_match.url_name == 'settings_page' %}active{% endif %}">
+
+                    <span>⚙</span>
+                    Ayarlar
+
+                </a>
+
+                <a href="{% url 'logout' %}"
+                   class="nav-item">
+
+                    <span>↪</span>
+                    Çıkış Yap
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =====================================================
+        MAIN CONTENT AREA
+        - Tüm sayfalar buraya render edilir
+    ====================================================== -->
+    <main class="dashboard-main">
+
+        <!-- İçerik buraya gelir -->
+        {% block dashboard_content %}{% endblock %}
+
+    </main>
+
+</div>
+
+{% endblock %}

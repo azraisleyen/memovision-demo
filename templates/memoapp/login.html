@@ -1,0 +1,47 @@
+{% extends "memoapp/base.html" %}
+
+{% block title %}Giriş Yap | MemoVision Pro{% endblock %}
+{% block body_page %}login{% endblock %}
+
+{% block content %}
+<section class="auth-page">
+    <div class="auth-card">
+        <a href="{% url 'landing' %}" class="auth-logo">
+            <span class="logo-icon">▶</span>
+            <span>MemoVision Pro</span>
+        </a>
+
+        <h1>Giriş Yap</h1>
+        <p>Analiz paneline erişmek için hesabınıza giriş yapın.</p>
+
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+
+            <label class="input-label" for="{{ form.username.id_for_label }}">Kullanıcı Adı</label>
+            {{ form.username }}
+            {% if form.username.errors %}
+                <div class="form-error">{{ form.username.errors }}</div>
+            {% endif %}
+
+            <label class="input-label" for="{{ form.password.id_for_label }}">Şifre</label>
+            {{ form.password }}
+            {% if form.password.errors %}
+                <div class="form-error">{{ form.password.errors }}</div>
+            {% endif %}
+
+            {% if form.non_field_errors %}
+                <div class="form-error">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <button type="submit" class="primary-btn full large">
+                Giriş Yap
+            </button>
+        </form>
+
+        <div class="auth-switch">
+            Hesabınız yok mu?
+            <a href="{% url 'register' %}">Kayıt olun</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

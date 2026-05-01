@@ -1,0 +1,23 @@
+# Virtual environments
+.venv/
+venv/
+venv_yeni/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Database
+db.sqlite3
+
+# Media files (uploaded videos, heatmaps, reports)
+media/
+
+# OS files
+.DS_Store
+
+# Runtime binaries
+GTK2-Runtime/
+
+# Env
+.env

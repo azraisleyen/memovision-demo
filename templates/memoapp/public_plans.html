@@ -1,0 +1,52 @@
+{% extends "memoapp/base.html" %}
+
+{% block title %}Planlar | MemoVision Pro{% endblock %}
+{% block body_page %}public-plans{% endblock %}
+
+{% block content %}
+<section class="plans-page">
+    <header class="landing-header">
+        <a href="{% url 'landing' %}" class="logo">
+            <span class="logo-icon">▶</span>
+            <span class="logo-text">MemoVision Pro</span>
+        </a>
+
+        <nav class="landing-nav">
+            <a href="{% url 'landing' %}" class="nav-link">Ana Sayfa</a>
+            <a href="{% url 'login' %}" class="nav-link">Giriş Yap</a>
+            <a href="{% url 'register' %}" class="primary-btn">Kayıt Ol</a>
+        </nav>
+    </header>
+
+    <main class="plans-wrapper">
+        <div class="plans-head">
+            <h1>Planlar</h1>
+            <p>MemoVision Pro için kullanım ihtiyacınıza göre plan seçin.</p>
+        </div>
+
+        <div class="public-plans-grid">
+            {% for plan in plans %}
+                <article class="public-plan-card {% if plan.highlight %}featured{% endif %}">
+                    {% if plan.highlight %}
+                        <div class="plan-badge">Önerilen</div>
+                    {% endif %}
+
+                    <h2>{{ plan.name }}</h2>
+                    <div class="public-plan-price">{{ plan.price }}</div>
+                    <p>{{ plan.description }}</p>
+
+                    <ul>
+                        {% for feature in plan.features %}
+                            <li>✓ {{ feature }}</li>
+                        {% endfor %}
+                    </ul>
+
+                    <a href="{% url 'register' %}" class="primary-btn full">
+                        Başla
+                    </a>
+                </article>
+            {% endfor %}
+        </div>
+    </main>
+</section>
+{% endblock %}

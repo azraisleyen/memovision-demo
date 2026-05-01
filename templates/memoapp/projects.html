@@ -1,0 +1,49 @@
+{% extends "memoapp/dashboard_base.html" %}
+{% load static %}
+{% block title %}Geçmiş Projeler{% endblock %}
+
+{% block dashboard_content %}
+<div class="split-page">
+    <div></div>
+
+    <div class="right-column-page">
+        <div class="page-head compact">
+            <h1>Geçmiş Projeler</h1>
+            <p>Tüm analiz sonuçlarınız ve skorları</p>
+        </div>
+
+        <div class="project-list">
+            {% for analysis in analyses %}
+                <a href="{% url 'dashboard' analysis.pk %}" class="project-card-link">
+                    <div class="project-card">
+                        <div class="project-left">
+                            <div class="project-thumb">
+                                {% if analysis.thumbnail %}
+                                    <img src="{{ analysis.thumbnail.url }}" alt="Thumbnail">
+                                {% else %}
+                                    ▶
+                                {% endif %}
+                            </div>
+
+                            <div>
+                                <div class="project-title">{{ analysis.title }}</div>
+                                <div class="project-meta">
+                                    {{ analysis.duration_display }} • {{ analysis.get_status_display }}
+                                </div>
+                                <div class="project-time">{{ analysis.created_at|timesince }} önce</div>
+                            </div>
+                        </div>
+
+                        <div class="project-scores">
+                            <div>Video: <span>{{ analysis.video_score|floatformat:1 }}</span></div>
+                            <div>Marka: <span>{{ analysis.brand_score|floatformat:1 }}</span></div>
+                        </div>
+                    </div>
+                </a>
+            {% empty %}
+                <div class="empty-box">Henüz analiz yok.</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

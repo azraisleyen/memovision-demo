@@ -1,0 +1,66 @@
+{% extends "memoapp/base.html" %}
+
+{% block title %}Kayıt Ol | MemoVision Pro{% endblock %}
+{% block body_page %}register{% endblock %}
+
+{% block content %}
+<section class="auth-page">
+    <div class="auth-card">
+        <a href="{% url 'landing' %}" class="auth-logo">
+            <span class="logo-icon">▶</span>
+            <span>MemoVision Pro</span>
+        </a>
+
+        <h1>Kayıt Ol</h1>
+        <p>Ücretsiz başlayın ve ilk analiz ekranına geçin.</p>
+
+        <form method="post" action="{% url 'register' %}">
+            {% csrf_token %}
+
+            <label class="input-label" for="{{ form.first_name.id_for_label }}">Ad Soyad</label>
+            {{ form.first_name }}
+            {% if form.first_name.errors %}
+                <div class="form-error">{{ form.first_name.errors }}</div>
+            {% endif %}
+
+            <label class="input-label" for="{{ form.username.id_for_label }}">Kullanıcı Adı</label>
+            {{ form.username }}
+            {% if form.username.errors %}
+                <div class="form-error">{{ form.username.errors }}</div>
+            {% endif %}
+
+            <label class="input-label" for="{{ form.email.id_for_label }}">E-posta</label>
+            {{ form.email }}
+            {% if form.email.errors %}
+                <div class="form-error">{{ form.email.errors }}</div>
+            {% endif %}
+
+            <label class="input-label" for="{{ form.password1.id_for_label }}">Şifre</label>
+            {{ form.password1 }}
+            {% if form.password1.errors %}
+                <div class="form-error">{{ form.password1.errors }}</div>
+            {% endif %}
+
+            <label class="input-label" for="{{ form.password2.id_for_label }}">Şifre Tekrar</label>
+            {{ form.password2 }}
+            {% if form.password2.errors %}
+                <div class="form-error">{{ form.password2.errors }}</div>
+            {% endif %}
+
+            <label class="checkbox-row">
+                <input type="checkbox" required>
+                <span>KVKK ve kullanım koşullarını kabul ediyorum.</span>
+            </label>
+
+            <button type="submit" class="primary-btn full large">
+                Kayıt Ol
+            </button>
+        </form>
+
+        <div class="auth-switch">
+            Zaten hesabınız var mı?
+            <a href="{% url 'login' %}">Giriş yapın</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,307 @@
+{% extends "memoapp/dashboard_base.html" %}
+{% load static %}
+
+{% block title %}Yeni Analiz{% endblock %}
+
+{% block dashboard_content %}
+
+<!-- =========================================================
+    PAGE HEADER
+========================================================= -->
+<div class="page-head">
+
+    <!-- Küçük bilgi etiketi -->
+    <div class="badge">
+        ● Backend skorları + AI öneri raporu
+    </div>
+
+    <!-- Başlık -->
+    <h1>Yeni Analiz</h1>
+
+    <!-- Açıklama -->
+    <p>
+        Video yükle, analiz et ve sonuçları dashboard üzerinden incele.
+    </p>
+
+</div>
+
+
+<!-- =========================================================
+    MAIN GRID (2 COLUMN DASHBOARD STRUCTURE)
+========================================================= -->
+<div class="result-grid">
+
+    <!-- =====================================================
+        LEFT COLUMN → UPLOAD / FORM
+    ====================================================== -->
+    <div>
+
+        <div class="upload-card">
+
+            <div class="upload-panel">
+
+                <!-- FORM -->
+                <form method="post" enctype="multipart/form-data" id="analysisForm">
+                    {% csrf_token %}
+
+                    <!-- =================================================
+                        TITLE INPUT
+                    ================================================== -->
+                    <div class="form-group">
+
+                        <label class="input-label">Analiz Başlığı</label>
+
+                        {{ form.title }}
+
+                        {% if form.title.errors %}
+                            <div class="form-error">
+                                {{ form.title.errors }}
+                            </div>
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- =================================================
+                        FILE UPLOAD (DROPZONE)
+                    ================================================== -->
+                    <label for="id_original_video"
+                           class="upload-dropzone"
+                           id="dropzone">
+
+                        <div class="upload-icon">☁</div>
+
+                        <div class="upload-main-text">
+                            Videonu buraya sürükle
+                        </div>
+
+                        <div class="upload-sub-text">
+                            veya <span>dosya seç</span>
+                        </div>
+
+                        <div class="upload-meta">
+                            MP4, MOV, WebM • Maks 2GB • Tek video
+                        </div>
+
+                    </label>
+
+                    <!-- Hidden Django input -->
+                    {{ form.original_video }}
+
+
+                    <!-- =================================================
+                        LOCAL VIDEO PREVIEW
+                        (JS ile kontrol edilir)
+                    ================================================== -->
+                    <div id="localPreviewWrapper"
+                         class="local-preview-wrapper hidden">
+
+                        <div class="local-video-preview-card">
+
+                            <!-- -------------------------
+                                THUMBNAIL STAGE
+                            -------------------------- -->
+                            <div id="videoPosterStage"
+                                 class="video-poster-stage">
+
+                                <img id="localThumbPreview"
+                                     src=""
+                                     alt="Video thumbnail"
+                                     class="video-poster-image">
+
+                                <!-- PLAY BUTTON -->
+                                <button type="button"
+                                        id="posterPlayButton"
+                                        class="poster-play-button">
+                                    ▶
+                                </button>
+
+                                <!-- DURATION -->
+                                <div id="posterDurationBadge"
+                                     class="poster-time-badge">
+                                    0:00
+                                </div>
+
+                            </div>
+
+                            <!-- -------------------------
+                                VIDEO PLAYER
+                            -------------------------- -->
+                            <div id="localVideoPlayerWrapper"
+                                 class="hidden">
+
+                                <video id="localVideoPlayer"
+                                       class="local-video-player"
+                                       controls
+                                       preload="metadata">
+                                </video>
+
+                            </div>
+
+                            <!-- -------------------------
+                                META + ACTIONS
+                            -------------------------- -->
+                            <div class="local-video-meta">
+
+                                <!-- FILE INFO -->
+                                <div class="file-meta-box">
+                                    <div id="selectedFileName" class="file-name"></div>
+
+                                    <div id="selectedFileStatus"
+                                         class="file-status">
+                                        Video seçildi
+                                    </div>
+                                </div>
+
+                                <!-- ACTION BUTTONS -->
+                                <div class="local-video-actions">
+
+                                    <button type="button"
+                                            id="bottomPlayButton"
+                                            class="secondary-btn">
+                                        ▶ Oynat
+                                    </button>
+
+                                    <button type="button"
+                                            id="resetPreviewButton"
+                                            class="secondary-btn">
+                                        Thumbnail’a Dön
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+
+                    <!-- =================================================
+                        URL INPUT
+                    ================================================== -->
+                    <div class="mt-18">
+
+                        <label class="input-label">
+                            URL'den video ekle
+                        </label>
+
+                        <div class="url-row">
+
+                            {{ form.source_url }}
+
+                            <button type="button"
+                                    id="urlAddButton"
+                                    class="square-btn">
+                                +
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                        GLOBAL FORM ERRORS
+                    ================================================== -->
+                    {% if form.non_field_errors %}
+                        <div class="form-error">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+
+                    <!-- =================================================
+                        SUBMIT BUTTON
+                    ================================================== -->
+                    <button type="submit"
+                            class="primary-btn full large mt-20">
+
+                        Analizi Başlat
+
+                    </button>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+        RIGHT COLUMN → INFO / PREVIEW PANEL
+    ====================================================== -->
+    <div class="result-side">
+
+        <!-- =================================================
+            SAMPLE OUTPUT CARD
+        ================================================== -->
+        <div class="score-side-card">
+
+            <div class="section-label">
+                📊 Örnek Çıktı
+            </div>
+
+            <div class="score-grid">
+
+                <!-- VIDEO SCORE -->
+                <div class="score-card">
+                    <div class="score-card-label">Video Skoru</div>
+                    <div class="big-score">0.78 <span>/ 1.00</span></div>
+                    <div class="score-confidence">
+                        Güven: 0.86
+                    </div>
+                </div>
+
+                <!-- BRAND SCORE -->
+                <div class="score-card">
+                    <div class="score-card-label">Marka Skoru</div>
+                    <div class="big-score green">0.81 <span>/ 1.00</span></div>
+                    <div class="score-confidence">
+                        Güven: 0.82
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+            AI SUGGESTION CARD
+        ================================================== -->
+        <div class="agent-side-card">
+
+            <div class="section-label">
+                🧠 AI Öneri
+            </div>
+
+            <div class="agent-text">
+                📍 0:00–0:02 → Hook zayıf  
+                <br><br>
+                İlk saniyelerde dikkat çekici sahne veya hareket kullanımı önerilir.
+                <br><br>
+                Etki: <span>+0.05</span>
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+            HEATMAP PREVIEW
+        ================================================== -->
+        <div class="heatmap-side-card">
+
+            <div class="section-label">
+                🔥 Isı Haritası
+            </div>
+
+            <div class="fake-heatmap"></div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

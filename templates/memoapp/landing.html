@@ -1,0 +1,91 @@
+{% extends "memoapp/base.html" %}
+{% load static %}
+
+{% block title %}MemoVision Pro{% endblock %}
+{% block body_page %}landing{% endblock %}
+
+{% block content %}
+<section class="landing-page">
+    <header class="landing-header">
+        <a href="{% url 'landing' %}" class="logo">
+            <span class="logo-icon">▶</span>
+            <span class="logo-text">MemoVision Pro</span>
+        </a>
+
+        <nav class="landing-nav">
+            <a href="{% url 'public_plans' %}" class="nav-link">Planlar</a>
+            <a href="{% url 'login' %}" class="nav-link">Giriş Yap</a>
+            <a href="{% url 'register' %}" class="primary-btn">Kayıt Ol</a>
+        </nav>
+    </header>
+
+    <main class="landing-wrapper">
+        <h1 class="hero-title">
+            Videonun ve Markanın Akılda Kalıcılığını Yayınlamadan Ölç.
+        </h1>
+
+        <p class="hero-subtitle">
+            Tek video yükle, saniyeler içinde skor ve öneri al.
+        </p>
+
+        <div class="compare-grid">
+            <article class="compare-card compare-low">
+                <div class="card-top-row">
+                    <div class="small-meta">📍 0:00 – GİRİŞ</div>
+
+                    <div class="score-tag low">
+                        <div class="score-state">⚠ ZAYIF</div>
+                        <div class="score-value">0.65</div>
+                        <div class="score-label">Hatırlanabilirlik</div>
+                    </div>
+                </div>
+
+                <div class="compare-heading muted">Ürünümüzü sunuyoruz</div>
+
+                <div class="hero-image-box">
+                    <img
+                        src="{% static 'memoapp/img/dusuk_hatirlanabilirlik.jpg' %}"
+                        alt="Düşük hatırlanabilirlik örneği"
+                    >
+                </div>
+
+                <div class="card-bottom-line"></div>
+            </article>
+
+            <article class="compare-card compare-high">
+                <div class="card-top-row">
+                    <div class="small-meta">📍 0:00 – GÜÇLÜ GİRİŞ</div>
+
+                    <div class="score-tag high">
+                        <div class="score-state">✓ GÜÇLÜ</div>
+                        <div class="score-value">0.88</div>
+                        <div class="score-label">Hatırlanabilirlik</div>
+                    </div>
+                </div>
+
+                <div class="compare-heading strong">Yeni Çağ Başlıyor</div>
+
+                <div class="hero-image-box">
+                    <img
+                        src="{% static 'memoapp/img/yuksek_hatirlanabilirlik.jpg' %}"
+                        alt="Yüksek hatırlanabilirlik örneği"
+                    >
+                </div>
+
+                <div class="card-bottom-line active"></div>
+            </article>
+        </div>
+
+        <p class="compare-caption">
+            <span class="cap-left">Solda:</span> Hook zayıf, metin küçük, logo donuk
+            <span class="caption-sep">|</span>
+            <span class="cap-right">Sağda:</span> Güçlü açılış, büyük başlık, parlak logo
+        </p>
+
+        <div class="cta-actions">
+            <a href="{% url 'register' %}" class="primary-btn large">Ücretsiz Başla</a>
+            <a href="{% url 'login' %}" class="secondary-btn large">Zaten hesabım var</a>
+        </div>
+    </main>
+</section>
+{% endblock %}

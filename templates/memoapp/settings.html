@@ -1,0 +1,44 @@
+{% extends "memoapp/dashboard_base.html" %}
+
+{% block title %}Ayarlar{% endblock %}
+
+{% block dashboard_content %}
+<div class="split-page">
+    <div></div>
+
+    <div class="right-column-page">
+        <div class="page-head compact">
+            <h1>Ayarlar</h1>
+            <p>Hesap ve tercihlerinizi yönetin</p>
+        </div>
+
+        <div class="settings-stack">
+            <div class="settings-card">
+                <h3>Genel Ayarlar</h3>
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    <label class="input-label">Ad Soyad</label>
+                    {{ form.first_name }}
+
+                    <label class="input-label">E-posta</label>
+                    {{ form.email }}
+
+                    <label class="input-label">Şirket</label>
+                    <input type="text" class="input-field" value="Creative Studio">
+
+                    <button type="submit" class="primary-btn">Kaydet</button>
+                </form>
+            </div>
+
+            <div class="settings-card">
+                <h3>Plan Bilgisi</h3>
+                <div class="plan-info-row"><span>Mevcut Plan</span><strong>Pro</strong></div>
+                <div class="plan-info-row"><span>Kalan Analiz</span><strong>{{ remaining }}/100</strong></div>
+                <div class="plan-info-row"><span>Fiyat</span><strong>$49/ay</strong></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

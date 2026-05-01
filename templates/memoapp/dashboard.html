@@ -1,0 +1,208 @@
+{% extends "memoapp/dashboard_base.html" %}
+{% load static %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block dashboard_content %}
+
+<div class="dashboard-modern">
+
+<!-- ================= HEADER ================= -->
+<div class="dm-header">
+
+    <div>
+        <div class="dm-badge">● Analiz Sonuçları</div>
+
+        <h1 class="dm-title">
+            {{ analysis.title|default:"Analiz Dashboard" }}
+        </h1>
+
+        <p class="dm-subtitle">
+            Video ve marka hatırlanabilirliği analiz sonuçları
+        </p>
+    </div>
+
+    <div class="dm-success">
+        Video başarıyla analiz edildi
+    </div>
+
+</div>
+
+
+<!-- ================= GRID ================= -->
+<div class="dm-grid">
+
+<!-- ================= LEFT ================= -->
+<div class="dm-left">
+
+    <!-- VIDEO -->
+    <div class="dm-card">
+
+        <div class="dm-card-title">🎬 Analiz Videosu</div>
+
+        <video class="dm-video" controls preload="metadata">
+            {% if analysis.original_video %}
+                <source src="{{ analysis.original_video.url }}" type="video/mp4">
+            {% else %}
+                <source src="{% static 'memoapp/video/demo.mp4' %}" type="video/mp4">
+            {% endif %}
+        </video>
+
+    </div>
+
+
+    <!-- AI SUGGESTIONS -->
+    <div class="dm-card">
+
+        <div class="dm-card-title">🧠 AI Önerileri</div>
+
+        <div class="dm-suggestion-list">
+
+            {% for s in suggestions %}
+            <div class="dm-suggestion">
+
+                <div class="dm-time">{{ s.time }}</div>
+
+                <div class="dm-content">
+                    <div class="dm-s-title">{{ s.title }}</div>
+                    <div class="dm-s-text">{{ s.text }}</div>
+                </div>
+
+                <div class="dm-impact">{{ s.impact }}</div>
+
+            </div>
+            {% empty %}
+                <div class="dm-empty">Henüz öneri yok</div>
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+
+    <!-- REPORT -->
+    <div class="dm-card">
+
+        <div class="dm-card-header">
+
+            <h3>📄 Analiz Raporu</h3>
+
+            <button onclick="window.print()" class="dm-btn">
+                PDF Kaydet
+            </button>
+
+        </div>
+
+        <div class="dm-report">
+
+            <div class="dm-metrics">
+
+                <div class="dm-metric">
+                    <span>Video</span>
+                    <strong>{{ analysis.video_score|floatformat:2 }}</strong>
+                </div>
+
+                <div class="dm-metric">
+                    <span>Marka</span>
+                    <strong>{{ analysis.brand_score|floatformat:2 }}</strong>
+                </div>
+
+                <div class="dm-metric">
+                    <span>Etki</span>
+                    <strong>+{{ analysis.estimated_gain|floatformat:2 }}</strong>
+                </div>
+
+            </div>
+
+            <div class="dm-summary">
+
+                {% if analysis.video_score > analysis.brand_score %}
+                    Video güçlü, marka artırılmalı.
+                {% elif analysis.brand_score > analysis.video_score %}
+                    Marka iyi, video geliştirilmeli.
+                {% else %}
+                    Dengeli performans.
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ================= RIGHT ================= -->
+<div class="dm-right">
+
+    <!-- SCORES -->
+    <div class="dm-card">
+
+        <div class="dm-card-title">📊 Skorlar</div>
+
+        <div class="dm-score-grid">
+
+            <div class="dm-score-box">
+                <span>Video</span>
+                <h2>{{ analysis.video_score|floatformat:2 }}</h2>
+            </div>
+
+            <div class="dm-score-box">
+                <span>Marka</span>
+                <h2 class="green">{{ analysis.brand_score|floatformat:2 }}</h2>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- HEATMAP -->
+    {% if analysis.heatmap %}
+    <div class="dm-card">
+
+        <div class="dm-card-title">🔥 Heatmap</div>
+
+        <img src="{{ analysis.heatmap.url }}" class="dm-img">
+
+    </div>
+    {% endif %}
+
+
+    <!-- HISTORY -->
+    <div class="dm-card">
+
+        <div class="dm-card-title">📁 Geçmiş Analizler</div>
+
+        <div class="dm-history">
+
+            {% for item in analyses %}
+            <a href="{% url 'dashboard' item.pk %}" class="dm-history-item">
+
+                <div>
+                    <div class="dm-h-title">{{ item.title }}</div>
+                    <div class="dm-h-meta">
+                        {{ item.created_at|timesince }} önce
+                    </div>
+                </div>
+
+                <div class="dm-h-score">
+                    V: {{ item.video_score|default:"-" }}<br>
+                    B: {{ item.brand_score|default:"-" }}
+                </div>
+
+            </a>
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}
