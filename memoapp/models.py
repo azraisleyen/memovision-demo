@@ -96,3 +96,17 @@ class UploadedAnalysis(models.Model):
         minutes = total_seconds // 60
         seconds = total_seconds % 60
         return f"{minutes}:{seconds:02d}"
+
+class UserSubscription(models.Model):
+    PLAN_CHOICES = (
+        ("free", "Ücretsiz"),
+        ("starter", "Başlangıç"),
+        ("pro", "Profesyonel"),
+        ("enterprise", "Kurumsal"),
+    )
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="subscription")
+    plan = models.CharField(max_length=20, choices=PLAN_CHOICES, default="pro")
+
+    def __str__(self):
+        return f"{self.user.username} - {self.plan}"
