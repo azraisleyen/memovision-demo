@@ -31,6 +31,7 @@ function initPage() {
     switch (page) {
         case "new-analysis":
             initUploadPreview();
+            initAnalysisSubmitLoading();
             break;
 
         case "dashboard":
@@ -185,6 +186,22 @@ function initUploadPreview() {
     }
 }
 
+
+
+function initAnalysisSubmitLoading() {
+    const form = document.getElementById("analysisForm");
+    const loadingBox = document.getElementById("analysisLoading");
+    if (!form || !loadingBox) return;
+
+    form.addEventListener("submit", () => {
+        const submitBtn = form.querySelector("button[type=\"submit\"]");
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Analiz İşleniyor...";
+        }
+        loadingBox.classList.remove("hidden");
+    });
+}
 
 /* =========================================================
    THUMBNAIL GENERATION

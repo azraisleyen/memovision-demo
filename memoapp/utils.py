@@ -1,7 +1,6 @@
 import io
-import os
+import time
 import uuid
-import math
 import urllib.request
 from pathlib import Path
 from random import Random
@@ -115,12 +114,12 @@ def build_demo_analysis_payload(title, duration_seconds):
     seed_text = f"{title}-{int(duration_seconds)}"
     rng = Random(seed_text)
 
-    # 🔥 Sabit skorlar
-    video_score = 0.66
-    brand_score = 0.55
+    # 🔥 Demo skorlar (jüri sunumu için tutarlı ve anlamlı)
+    video_score = 0.74
+    brand_score = 0.68
     video_confidence = round(rng.uniform(0.82, 0.91), 2)
     brand_confidence = round(rng.uniform(0.80, 0.89), 2)
-    estimated_gain = 0.2
+    estimated_gain = 0.18
 
     # Zaman çizgisi için öne çıkan anlar
     # Süreye göre yaklaşık nokta üret
@@ -402,10 +401,15 @@ def process_uploaded_analysis(analysis):
         payload = build_demo_analysis_payload(analysis.title, analysis.duration_seconds)
         analysis.video_score = payload["video_score"]
         analysis.brand_score = payload["brand_score"]
-        
+        analysis.video_confidence = payload["video_confidence"]
+        analysis.brand_confidence = payload["brand_confidence"]
         analysis.estimated_gain = payload["estimated_gain"]
         analysis.highlights_json = payload["highlights"]
         analysis.recommendations_json = payload["recommendations"]
+
+        # Demo akışında model çalışıyormuş hissi için bilinçli bekleme
+        # (gerçek model entegrasyonunda bu süre doğal olarak inference süresi olacaktır)
+        time.sleep(4)
 
         # Önce heatmap + skorlar kaydedilsin
         analysis.status = "completed"
