@@ -137,40 +137,40 @@ def build_dashboard_suggestions(analysis):
         suggestions.append({
             "time": "0:00–0:02",
             "seek": 0,
-            "title": "Açılış etkisini güçlendir",
+            "title": "Problem: Açılış etkisini güçlendir",
             "impact": "+0.08",
-            "text": "İlk saniyelerde daha güçlü bir hook kullanılması önerilir.",
+            "text": "Insight: İlk 2 saniyede dikkat düşüyor. Öneri: Güçlü hook sahnesi. Beklenen etki: izlenme tutunması artar.",
         })
     else:
         suggestions.append({
             "time": "0:00–0:02",
             "seek": 0,
-            "title": "Güçlü açılışı koru",
+            "title": "Insight: Güçlü açılışı koru",
             "impact": "+0.04",
-            "text": "Açılış bölümü izleyici dikkatini destekliyor.",
+            "text": "Açılış performansı güçlü. Aynı tempo korunursa hatırlanabilirlik korunur.",
         })
 
     if brand_score < 0.70:
         suggestions.append({
             "time": "0:03–0:08",
             "seek": 3,
-            "title": "Marka görünürlüğünü artır",
+            "title": "Problem: Marka görünürlüğünü artır",
             "impact": "+0.06",
-            "text": "Logo, ürün veya marka mesajı daha merkezi ve okunabilir sunulmalıdır.",
+            "text": "Insight: Marka öğeleri geç ve düşük kontrastta kalıyor. Öneri: Logo/ürün merkezi ve yüksek kontrast. Etki: marka hatırlanması yükselir.",
         })
     else:
         suggestions.append({
             "time": "0:03–0:08",
             "seek": 3,
-            "title": "Marka temasını sürdür",
+            "title": "Insight: Marka temasını sürdür",
             "impact": "+0.04",
-            "text": "Marka görünürlüğü yeterli seviyede korunmalıdır.",
+            "text": "Marka görünürlüğü yeterli. Öneri: aynı görsel dilin devamı ile tutarlılık korunmalı.",
         })
 
     suggestions.append({
         "time": "0:12–0:18",
         "seek": 12,
-        "title": "CTA ve mesaj hiyerarşisini netleştir",
+        "title": "Öneri: CTA ve mesaj hiyerarşisini netleştir",
         "impact": "+0.06",
         "text": "Kapanış mesajı kısa, okunabilir ve aksiyon odaklı olmalıdır.",
     })
