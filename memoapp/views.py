@@ -7,67 +7,102 @@ from django.contrib.auth.views import LoginView
 from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
+from django.utils import timezone
 
 from .forms import AnalysisCreateForm, LoginForm, RegisterForm, UserSettingsForm
-from .models import UploadedAnalysis
+from .models import UploadedAnalysis, UserSubscription
+from .plans import PLAN_CONFIG, get_plan_config, normalize_plan_key
 from .utils import attach_video_from_url, process_uploaded_analysis
 
 
+def _get_or_create_subscription(user):
+    # Güvenli varsayılan: eski/uyumsuz veritabanlarında NOT NULL hatasını önler.
+    sub, _ = UserSubscription.objects.get_or_create(
+        user=user,
+        defaults={"plan": "free", "plan_started_at": timezone.now()},
+    )
+
+    normalized = normalize_plan_key(sub.plan)
+    if sub.plan != normalized:
+        sub.plan = normalized
+        sub.save(update_fields=["plan"])
+
+    return sub
+
+
+def _build_plan_context(user):
+    # Günlük kota hesabı: her gün sonunda kullanım otomatik sıfırlanır.
+    sub = _get_or_create_subscription(user)
+    plan = get_plan_config(sub.plan)
+    total_analyses = UploadedAnalysis.objects.filter(
+        user=user,
+        status="completed",
+        created_at__date=timezone.localdate(),
+        created_at__gte=sub.plan_started_at,
+    ).count()
+
+    limit = plan["limit"]
+    if limit is None:
+        remaining_text = "Sınırsız"
+        progress_pct = 0
+    else:
+        remaining_text = f"{max(limit - total_analyses, 0)} / {limit}"
+        progress_pct = min(int((total_analyses / limit) * 100), 100)
+
+    return {
+        "current_plan": plan,
+        "current_plan_key": sub.plan,
+        "total_analyses": total_analyses,
+        "remaining_text": remaining_text,
+        "progress_pct": progress_pct,
+    }
+
+
 def landing(request):
-    """
-    Public landing sayfası.
-    Giriş yapan kullanıcı tekrar landing'de kalmaz, yeni analiz ekranına gider.
-    """
     if request.user.is_authenticated:
         return redirect("new_analysis")
-
     return render(request, "memoapp/landing.html")
 
 
 def public_plans(request):
-    """
-    Giriş yapmadan görülebilen planlar sayfası.
-    """
     plans = [
         {
+            "key": "free",
             "name": "Ücretsiz",
             "price": "₺0",
-            "description": "Ürünü denemek isteyen kullanıcılar için 2 ücretsiz analiz hakkı.",
-            "features": ["2 ücretsiz analiz", "Video skoru", "Marka skoru", "Temel AI raporu"],
+            "description": "2 analiz hakkı. Sadece video memorability.",
+            "features": ["2 analiz hakkı", "Video memorability", "Temel AI raporu"],
             "highlight": False,
         },
         {
+            "key": "starter",
             "name": "Başlangıç",
             "price": "$99 / ay",
-            "description": "Küçük kampanyalar ve bireysel pazarlama ekipleri için temel analiz paketi.",
-            "features": ["Günlük 3 analiz", "Video + marka skoru", "Dashboard görünümü", "Kısa öneri raporu"],
+            "description": "Günlük 3 analiz. Sadece video memorability.",
+            "features": ["Günlük 3 analiz", "Video memorability", "Dashboard"],
             "highlight": False,
         },
         {
+            "key": "pro",
             "name": "Profesyonel",
             "price": "$219 / ay",
-            "description": "Ekipler için gelişmiş analiz, heatmap ve öneri akışı.",
-            "features": ["Günlük 25 analiz", "Heatmap önizleme", "Gelişmiş AI önerileri", "Ekip kullanımı"],
+            "description": "Günlük 25 analiz. Video + marka memorability.",
+            "features": ["Günlük 25 analiz", "Video + marka memorability", "Gelişmiş AI önerileri"],
             "highlight": True,
         },
         {
+            "key": "enterprise",
             "name": "Kurumsal",
             "price": "Pay as you go",
-            "description": "API, özel entegrasyon ve kuruma özel kullanım ihtiyaçları için.",
-            "features": ["API erişimi", "Özel entegrasyon", "Kurumsal destek", "Özelleştirilebilir kullanım"],
+            "description": "Sınırsız analiz. Video + marka memorability.",
+            "features": ["Sınırsız analiz", "Video + marka memorability", "API / özel entegrasyon"],
             "highlight": False,
         },
     ]
-
     return render(request, "memoapp/public_plans.html", {"plans": plans})
 
 
 class CustomLoginView(LoginView):
-    """
-    Kullanıcı giriş sayfası.
-    GET: login.html gösterir.
-    POST: giriş başarılıysa yeni analiz sayfasına yönlendirir.
-    """
     template_name = "memoapp/login.html"
     authentication_form = LoginForm
     success_url = reverse_lazy("new_analysis")
@@ -76,39 +111,26 @@ class CustomLoginView(LoginView):
     def get_success_url(self):
         return self.success_url
 
-    def form_invalid(self, form):
-        messages.error(self.request, "Giriş başarısız. Bilgilerinizi kontrol edin.")
-        return super().form_invalid(form)
-
-    def form_valid(self, form):
-        messages.success(self.request, "Giriş başarılı.")
-        return super().form_valid(form)
-
 
 def register_view(request):
-    """
-    Kullanıcı kayıt sayfası.
-    GET: register.html gösterir.
-    POST: kayıt başarılıysa kullanıcıyı otomatik giriş yaptırıp yeni analiz sayfasına gönderir.
-    """
     if request.user.is_authenticated:
         return redirect("new_analysis")
 
     if request.method == "POST":
         form = RegisterForm(request.POST)
-
         if form.is_valid():
             user = form.save(commit=False)
             user.first_name = form.cleaned_data["first_name"]
             user.email = form.cleaned_data["email"]
             user.save()
-
+            UserSubscription.objects.get_or_create(
+                user=user,
+                defaults={"plan": "free", "plan_started_at": timezone.now()},
+            )
             login(request, user)
             messages.success(request, "Kayıt başarılı. Hoş geldiniz.")
             return redirect("new_analysis")
-
         messages.error(request, "Kayıt formunda hata var. Lütfen bilgileri kontrol edin.")
-
     else:
         form = RegisterForm()
 
@@ -116,76 +138,26 @@ def register_view(request):
 
 
 def logout_view(request):
-    """
-    Kullanıcı çıkış işlemi.
-    """
     logout(request)
     messages.info(request, "Çıkış yapıldı.")
     return redirect("landing")
 
 
 def build_dashboard_suggestions(analysis):
-    """
-    Dashboard için zaman bazlı öneriler üretir.
-    """
-    video_score = float(analysis.video_score or 0)
-    brand_score = float(analysis.brand_score or 0)
-
-    suggestions = []
-
-    if video_score < 0.70:
-        suggestions.append({
-            "time": "0:00–0:02",
-            "seek": 0,
-            "title": "Açılış etkisini güçlendir",
-            "impact": "+0.08",
-            "text": "İlk saniyelerde daha güçlü bir hook kullanılması önerilir.",
-        })
-    else:
-        suggestions.append({
-            "time": "0:00–0:02",
-            "seek": 0,
-            "title": "Güçlü açılışı koru",
-            "impact": "+0.04",
-            "text": "Açılış bölümü izleyici dikkatini destekliyor.",
-        })
-
-    if brand_score < 0.70:
-        suggestions.append({
-            "time": "0:03–0:08",
-            "seek": 3,
-            "title": "Marka görünürlüğünü artır",
-            "impact": "+0.06",
-            "text": "Logo, ürün veya marka mesajı daha merkezi ve okunabilir sunulmalıdır.",
-        })
-    else:
-        suggestions.append({
-            "time": "0:03–0:08",
-            "seek": 3,
-            "title": "Marka temasını sürdür",
-            "impact": "+0.04",
-            "text": "Marka görünürlüğü yeterli seviyede korunmalıdır.",
-        })
-
-    suggestions.append({
-        "time": "0:12–0:18",
-        "seek": 12,
-        "title": "CTA ve mesaj hiyerarşisini netleştir",
-        "impact": "+0.06",
-        "text": "Kapanış mesajı kısa, okunabilir ve aksiyon odaklı olmalıdır.",
-    })
-
-    return suggestions
+    return [{"time": "0:00–0:02", "seek": 0, "title": "Öneri", "impact": "+0.05", "text": "Açılış hook’unu güçlendirin."}]
 
 
 @login_required
 def new_analysis(request):
-    """
-    Yeni analiz oluşturma ekranı.
-    """
-    if request.method == "POST":
-        form = AnalysisCreateForm(request.POST, request.FILES)
+    plan_ctx = _build_plan_context(request.user)
+    current_plan = plan_ctx["current_plan"]
 
+    if request.method == "POST":
+        if current_plan["limit"] is not None and plan_ctx["total_analyses"] >= current_plan["limit"]:
+            messages.error(request, f"{current_plan['name']} planı analiz limitine ulaştınız.")
+            return redirect("settings_page")
+
+        form = AnalysisCreateForm(request.POST, request.FILES)
         if form.is_valid():
             analysis = form.save(commit=False)
             analysis.user = request.user
@@ -197,7 +169,6 @@ def new_analysis(request):
 
             if not uploaded_file and source_url:
                 ok, error = attach_video_from_url(analysis, source_url)
-
                 if not ok:
                     analysis.status = "failed"
                     analysis.error_message = error
@@ -206,164 +177,74 @@ def new_analysis(request):
                     return redirect("new_analysis")
 
             ok, error = process_uploaded_analysis(analysis)
-
             if ok:
                 messages.success(request, "Video başarıyla analiz edildi.")
                 return redirect("dashboard", analysis_id=analysis.pk)
-
-            analysis.status = "failed"
-            analysis.error_message = error
-            analysis.save(update_fields=["status", "error_message"])
 
             messages.error(request, error)
             return redirect("new_analysis")
 
         messages.error(request, "Form geçerli değil. Lütfen tekrar deneyin.")
-
     else:
         form = AnalysisCreateForm()
 
-    recent_analyses = UploadedAnalysis.objects.filter(
-        user=request.user
-    ).order_by("-created_at")[:3]
-
-    return render(request, "memoapp/new_analysis.html", {
-        "form": form,
-        "recent_analyses": recent_analyses,
-    })
+    recent_analyses = UploadedAnalysis.objects.filter(user=request.user).order_by("-created_at")[:3]
+    return render(request, "memoapp/new_analysis.html", {"form": form, "recent_analyses": recent_analyses, "show_brand_score": current_plan["brand_enabled"], **plan_ctx})
 
 
 @login_required
 def dashboard(request, analysis_id):
-    """
-    Analiz sonuç dashboard'u.
-    """
-    analysis = get_object_or_404(
-        UploadedAnalysis,
-        pk=analysis_id,
-        user=request.user,
-    )
-
-    analyses = UploadedAnalysis.objects.filter(
-        user=request.user
-    ).order_by("-created_at")
-
+    analysis = get_object_or_404(UploadedAnalysis, pk=analysis_id, user=request.user)
+    analyses = UploadedAnalysis.objects.filter(user=request.user).order_by("-created_at")
     suggestions = build_dashboard_suggestions(analysis)
-
-    return render(request, "memoapp/dashboard.html", {
-        "analysis": analysis,
-        "analyses": analyses,
-        "suggestions": suggestions,
-    })
+    plan_ctx = _build_plan_context(request.user)
+    return render(request, "memoapp/dashboard.html", {"analysis": analysis, "analyses": analyses, "suggestions": suggestions, "show_brand_score": plan_ctx["current_plan"]["brand_enabled"], **plan_ctx})
 
 
 @login_required
 def projects(request):
-    """
-    Geçmiş analizler.
-    """
-    analyses = UploadedAnalysis.objects.filter(
-        user=request.user
-    ).order_by("-created_at")
-
-    return render(request, "memoapp/projects.html", {"analyses": analyses})
+    analyses = UploadedAnalysis.objects.filter(user=request.user).order_by("-created_at")
+    return render(request, "memoapp/projects.html", {"analyses": analyses, **_build_plan_context(request.user)})
 
 
 @login_required
 def settings_view(request):
-    """
-    Kullanıcı ayarları.
-    """
+    subscription = _get_or_create_subscription(request.user)
     if request.method == "POST":
         form = UserSettingsForm(request.POST, instance=request.user)
-
+        selected_plan = normalize_plan_key(request.POST.get("plan"))
         if form.is_valid():
             form.save()
+            if selected_plan in PLAN_CONFIG and subscription.plan != selected_plan:
+                subscription.plan = selected_plan
+                subscription.plan_started_at = timezone.now()
+                subscription.save(update_fields=["plan", "plan_started_at"])
             messages.success(request, "Ayarlar kaydedildi.")
             return redirect("settings_page")
-
     else:
         form = UserSettingsForm(instance=request.user)
 
-    total_analyses = UploadedAnalysis.objects.filter(user=request.user).count()
-    remaining = max(100 - total_analyses, 0)
-
+    plan_ctx = _build_plan_context(request.user)
     return render(request, "memoapp/settings.html", {
         "form": form,
-        "total_analyses": total_analyses,
-        "remaining": remaining,
+        "plans": PLAN_CONFIG.values(),
+        "selected_plan": subscription.plan,
+        **plan_ctx,
     })
 
 
 @login_required
 def download_report(request, pk):
-    """
-    PDF rapor indirir.
-    """
-    analysis = get_object_or_404(
-        UploadedAnalysis,
-        pk=pk,
-        user=request.user,
-    )
-
+    analysis = get_object_or_404(UploadedAnalysis, pk=pk, user=request.user)
     if not analysis.report_pdf:
         raise Http404("Rapor bulunamadı.")
-
     report_path = analysis.report_pdf.path
-
     if not os.path.exists(report_path):
         raise Http404("Rapor dosyası fiziksel olarak mevcut değil.")
-
-    return FileResponse(
-        open(report_path, "rb"),
-        as_attachment=True,
-        filename=f"memovision_report_{analysis.pk}.pdf",
-    )
+    return FileResponse(open(report_path, "rb"), as_attachment=True, filename=f"memovision_report_{analysis.pk}.pdf")
 
 
 @login_required
 def report_view(request, pk):
-    """
-    HTML rapor sayfası.
-    """
-    analysis = get_object_or_404(
-        UploadedAnalysis,
-        pk=pk,
-        user=request.user,
-    )
-
-    video_score = float(analysis.video_score or 0)
-    brand_score = float(analysis.brand_score or 0)
-
-    video_label = "Yüksek" if video_score >= 0.70 else "Orta"
-    brand_label = "Yüksek" if brand_score >= 0.70 else "Orta"
-
-    if video_score > brand_score:
-        main_comment = (
-            "Video içeriği izleyici ilgisini desteklemektedir. Buna karşın marka "
-            "unsurlarının daha erken ve görünür konumlandırılması önerilir."
-        )
-        summary = "İçerik etkisi güçlüdür; marka görünürlüğü artırılmalıdır."
-    elif brand_score > video_score:
-        main_comment = (
-            "Marka görünürlüğü belirli seviyede sağlanmıştır. Video akışı, açılış etkisi "
-            "ve mesaj netliği güçlendirilirse kampanya etkisi artabilir."
-        )
-        summary = "Marka varlığı güçlüdür; video etkisi geliştirilebilir."
-    else:
-        main_comment = (
-            "Video ve marka skorları dengelidir. Küçük optimizasyonlarla daha güçlü "
-            "bir sonuç alınabilir."
-        )
-        summary = "Video ve marka etkisi dengelidir."
-
-    suggestions = build_dashboard_suggestions(analysis)
-
-    return render(request, "memoapp/report.html", {
-        "analysis": analysis,
-        "video_label": video_label,
-        "brand_label": brand_label,
-        "main_comment": main_comment,
-        "summary": summary,
-        "suggestions": suggestions,
-    })
+    analysis = get_object_or_404(UploadedAnalysis, pk=pk, user=request.user)
+    return render(request, "memoapp/report.html", {"analysis": analysis, "video_label": "Yüksek" if analysis.video_score >= 0.7 else "Orta", "brand_label": "Yüksek" if analysis.brand_score >= 0.7 else "Orta", "main_comment": "Genel değerlendirme", "summary": "Özet", "suggestions": build_dashboard_suggestions(analysis), **_build_plan_context(request.user)})

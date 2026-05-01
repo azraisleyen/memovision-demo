@@ -1,6 +1,8 @@
 {% extends "memoapp/dashboard_base.html" %}
 {% load static %}
 
+{% block body_page %}new-analysis{% endblock %}
+
 {% block title %}Yeni Analiz{% endblock %}
 
 {% block dashboard_content %}
@@ -10,18 +12,7 @@
 ========================================================= -->
 <div class="page-head">
 
-    <!-- Küçük bilgi etiketi -->
-    <div class="badge">
-        ● Backend skorları + AI öneri raporu
-    </div>
-
-    <!-- Başlık -->
     <h1>Yeni Analiz</h1>
-
-    <!-- Açıklama -->
-    <p>
-        Video yükle, analiz et ve sonuçları dashboard üzerinden incele.
-    </p>
 
 </div>
 
@@ -222,6 +213,12 @@
 
                 </form>
 
+                <div id="analysisLoading" class="analysis-loading hidden">
+                    <div class="loader-dot"></div>
+                    <h3>Analiz hazırlanıyor...</h3>
+                    <p>Video özellikleri çıkarılıyor ve memorability değerlendirmesi oluşturuluyor.</p>
+                </div>
+
             </div>
         </div>
 
@@ -253,6 +250,7 @@
                     </div>
                 </div>
 
+                {% if show_brand_score %}
                 <!-- BRAND SCORE -->
                 <div class="score-card">
                     <div class="score-card-label">Marka Skoru</div>
@@ -261,6 +259,7 @@
                         Güven: 0.82
                     </div>
                 </div>
+                {% endif %}
 
             </div>
 
