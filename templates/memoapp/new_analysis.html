@@ -1,6 +1,8 @@
 {% extends "memoapp/dashboard_base.html" %}
 {% load static %}
 
+{% block body_page %}new-analysis{% endblock %}
+
 {% block title %}Yeni Analiz{% endblock %}
 
 {% block dashboard_content %}
@@ -12,7 +14,7 @@
 
     <!-- Küçük bilgi etiketi -->
     <div class="badge">
-        ● Backend skorları + AI öneri raporu
+        ● Final Demo Modu: Video + Marka Memorability Değerlendirmesi
     </div>
 
     <!-- Başlık -->
@@ -20,7 +22,7 @@
 
     <!-- Açıklama -->
     <p>
-        Video yükle, analiz et ve sonuçları dashboard üzerinden incele.
+        Videoyu yükleyin; sistem video özelliklerini çıkarıp modelleme adımlarını simüle eder, ardından sonuç ekranını açar.
     </p>
 
 </div>
@@ -221,6 +223,12 @@
                     </button>
 
                 </form>
+
+                <div id="analysisLoading" class="analysis-loading hidden">
+                    <div class="loader-dot"></div>
+                    <h3>Analiz hazırlanıyor...</h3>
+                    <p>Video özellikleri çıkarılıyor ve memorability değerlendirmesi oluşturuluyor.</p>
+                </div>
 
             </div>
         </div>

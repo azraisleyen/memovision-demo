@@ -1,6 +1,8 @@
 {% extends "memoapp/dashboard_base.html" %}
 {% load static %}
 
+{% block body_page %}dashboard{% endblock %}
+
 {% block title %}Dashboard{% endblock %}
 
 {% block dashboard_content %}
@@ -18,7 +20,7 @@
         </h1>
 
         <p class="dm-subtitle">
-            Video ve marka hatırlanabilirliği analiz sonuçları
+Jüri odaklı çıktı: Problem → Insight → Öneri → Beklenen Etki zinciri
         </p>
     </div>
 
@@ -54,7 +56,7 @@
     <!-- AI SUGGESTIONS -->
     <div class="dm-card">
 
-        <div class="dm-card-title">🧠 AI Önerileri</div>
+        <div class="dm-card-title">🧠 Karar Destek Akışı</div>
 
         <div class="dm-suggestion-list">
 
@@ -87,9 +89,9 @@
 
             <h3>📄 Analiz Raporu</h3>
 
-            <button onclick="window.print()" class="dm-btn">
-                PDF Kaydet
-            </button>
+            <a href="{% url 'download_report' analysis.pk %}" class="dm-btn">
+                PDF İndir
+            </a>
 
         </div>
 
