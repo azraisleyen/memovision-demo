@@ -26,7 +26,16 @@
                     {{ form.email }}
 
                     <label class="input-label">Şirket</label>
-                    <input type="text" class="input-field" value="Creative Studio">
+                    <input type="text" class="input-field" value="Creative Studio" disabled>
+
+                    <label class="input-label">Plan Seçimi</label>
+                    <select name="plan" class="input-field">
+                        {% for plan in plans %}
+                            <option value="{{ plan.key }}" {% if selected_plan == plan.key %}selected{% endif %}>
+                                {{ plan.name }} - {{ plan.price }}
+                            </option>
+                        {% endfor %}
+                    </select>
 
                     <button type="submit" class="primary-btn">Kaydet</button>
                 </form>
@@ -34,9 +43,9 @@
 
             <div class="settings-card">
                 <h3>Plan Bilgisi</h3>
-                <div class="plan-info-row"><span>Mevcut Plan</span><strong>Pro</strong></div>
-                <div class="plan-info-row"><span>Kalan Analiz</span><strong>{{ remaining }}/100</strong></div>
-                <div class="plan-info-row"><span>Fiyat</span><strong>$49/ay</strong></div>
+                <div class="plan-info-row"><span>Mevcut Plan</span><strong>{{ current_plan.name }}</strong></div>
+                <div class="plan-info-row"><span>Kalan Analiz</span><strong>{{ remaining_text }}</strong></div>
+                <div class="plan-info-row"><span>Fiyat</span><strong>{{ current_plan.price }}</strong></div>
             </div>
         </div>
     </div>
