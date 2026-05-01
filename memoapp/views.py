@@ -23,11 +23,7 @@ def _get_or_create_subscription(user):
 def _build_plan_context(user):
     sub = _get_or_create_subscription(user)
     plan = get_plan_config(sub.plan)
-    total_analyses = UploadedAnalysis.objects.filter(
-        user=user,
-        status="completed",
-        created_at__gte=sub.plan_started_at,
-    ).count()
+    total_analyses = UploadedAnalysis.objects.filter(user=user).count()
 
     limit = plan["limit"]
     if limit is None:
@@ -129,7 +125,57 @@ def logout_view(request):
 
 
 def build_dashboard_suggestions(analysis):
-    return [{"time": "0:00–0:02", "seek": 0, "title": "Öneri", "impact": "+0.05", "text": "Açılış hook’unu güçlendirin."}]
+    """
+    Dashboard için zaman bazlı öneriler üretir.
+    """
+    video_score = float(analysis.video_score or 0)
+    brand_score = float(analysis.brand_score or 0)
+
+    suggestions = []
+
+    if video_score < 0.70:
+        suggestions.append({
+            "time": "0:00–0:02",
+            "seek": 0,
+            "title": "Problem: Açılış etkisini güçlendir",
+            "impact": "+0.08",
+            "text": "Insight: İlk 2 saniyede dikkat düşüyor. Öneri: Güçlü hook sahnesi. Beklenen etki: izlenme tutunması artar.",
+        })
+    else:
+        suggestions.append({
+            "time": "0:00–0:02",
+            "seek": 0,
+            "title": "Insight: Güçlü açılışı koru",
+            "impact": "+0.04",
+            "text": "Açılış performansı güçlü. Aynı tempo korunursa hatırlanabilirlik korunur.",
+        })
+
+    if brand_score < 0.70:
+        suggestions.append({
+            "time": "0:03–0:08",
+            "seek": 3,
+            "title": "Problem: Marka görünürlüğünü artır",
+            "impact": "+0.06",
+            "text": "Insight: Marka öğeleri geç ve düşük kontrastta kalıyor. Öneri: Logo/ürün merkezi ve yüksek kontrast. Etki: marka hatırlanması yükselir.",
+        })
+    else:
+        suggestions.append({
+            "time": "0:03–0:08",
+            "seek": 3,
+            "title": "Insight: Marka temasını sürdür",
+            "impact": "+0.04",
+            "text": "Marka görünürlüğü yeterli. Öneri: aynı görsel dilin devamı ile tutarlılık korunmalı.",
+        })
+
+    suggestions.append({
+        "time": "0:12–0:18",
+        "seek": 12,
+        "title": "Öneri: CTA ve mesaj hiyerarşisini netleştir",
+        "impact": "+0.06",
+        "text": "Kapanış mesajı kısa, okunabilir ve aksiyon odaklı olmalıdır.",
+    })
+
+    return suggestions
 
 
 @login_required
@@ -204,10 +250,8 @@ def settings_view(request):
         if form.is_valid():
             form.save()
             if selected_plan in PLAN_CONFIG:
-                if subscription.plan != selected_plan:
-                    subscription.plan = selected_plan
-                    subscription.plan_started_at = timezone.now()
-                    subscription.save(update_fields=["plan", "plan_started_at"])
+                subscription.plan = selected_plan
+                subscription.save(update_fields=["plan"])
             messages.success(request, "Ayarlar kaydedildi.")
             return redirect("settings_page")
     else:
