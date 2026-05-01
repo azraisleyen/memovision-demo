@@ -107,7 +107,13 @@ def register_view(request):
             user.first_name = form.cleaned_data["first_name"]
             user.email = form.cleaned_data["email"]
             user.save()
-            UserSubscription.objects.get_or_create(user=user, defaults={"plan": "free"})
+            UserSubscription.objects.get_or_create(
+                user=user,
+                defaults={
+                    "plan": "free",
+                    "plan_started_at": timezone.now(),
+                },
+            )
             login(request, user)
             messages.success(request, "Kayıt başarılı. Hoş geldiniz.")
             return redirect("new_analysis")
