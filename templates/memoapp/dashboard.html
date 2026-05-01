@@ -150,10 +150,12 @@ Jüri odaklı çıktı: Problem → Insight → Öneri → Beklenen Etki zinciri
                 <h2>{{ analysis.video_score|floatformat:2 }}</h2>
             </div>
 
+            {% if show_brand_score %}
             <div class="dm-score-box">
                 <span>Marka</span>
                 <h2 class="green">{{ analysis.brand_score|floatformat:2 }}</h2>
             </div>
+            {% endif %}
 
         </div>
 
