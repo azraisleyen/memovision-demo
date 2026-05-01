@@ -69,17 +69,17 @@
             <div class="plan-card">
 
                 <div class="plan-title">
-                    Pro Plan
+                    {{ current_plan.name }} Plan
                 </div>
 
                 <div class="plan-sub">
-                    42 / 100 analiz kullanıldı
+                    {{ remaining_text }} analiz hakkı
                 </div>
 
                 <!-- Progress bar -->
                 <div class="progress-bar">
                     <div class="progress-fill"
-                         style="width:42%">
+                         style="width:{{ progress_pct }}%">
                     </div>
                 </div>
 
