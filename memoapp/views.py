@@ -7,6 +7,7 @@ from django.contrib.auth.views import LoginView
 from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
+from django.utils import timezone
 
 from .forms import AnalysisCreateForm, LoginForm, RegisterForm, UserSettingsForm
 from .models import UploadedAnalysis, UserSubscription
