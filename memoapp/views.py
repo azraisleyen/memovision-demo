@@ -23,22 +23,30 @@ def _get_or_create_subscription(user):
 def _build_plan_context(user):
     sub = _get_or_create_subscription(user)
     plan = get_plan_config(sub.plan)
-    total_analyses = UploadedAnalysis.objects.filter(user=user).count()
+    now = timezone.now()
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    usage_window_start = max(sub.plan_started_at, today_start)
+
+    period_analyses = UploadedAnalysis.objects.filter(
+        user=user,
+        created_at__gte=usage_window_start,
+    ).count()
 
     limit = plan["limit"]
     if limit is None:
         remaining_text = "Sınırsız"
         progress_pct = 0
     else:
-        remaining_text = f"{max(limit - total_analyses, 0)} / {limit}"
-        progress_pct = min(int((total_analyses / limit) * 100), 100)
+        remaining_text = f"{max(limit - period_analyses, 0)} / {limit}"
+        progress_pct = min(int((period_analyses / limit) * 100), 100)
 
     return {
         "current_plan": plan,
         "current_plan_key": sub.plan,
-        "total_analyses": total_analyses,
+        "total_analyses": period_analyses,
         "remaining_text": remaining_text,
         "progress_pct": progress_pct,
+        "show_brand_score": plan["brand_enabled"],
     }
 
 
@@ -100,6 +108,12 @@ def register_view(request):
     if request.user.is_authenticated:
         return redirect("new_analysis")
 
+    selected_plan = request.GET.get("plan")
+    if selected_plan not in PLAN_CONFIG:
+        selected_plan = request.POST.get("plan")
+    if selected_plan not in PLAN_CONFIG:
+        selected_plan = "free"
+
     if request.method == "POST":
         form = RegisterForm(request.POST)
         if form.is_valid():
@@ -110,7 +124,7 @@ def register_view(request):
             UserSubscription.objects.get_or_create(
                 user=user,
                 defaults={
-                    "plan": "free",
+                    "plan": selected_plan,
                     "plan_started_at": timezone.now(),
                 },
             )
@@ -121,7 +135,7 @@ def register_view(request):
     else:
         form = RegisterForm()
 
-    return render(request, "memoapp/register.html", {"form": form})
+    return render(request, "memoapp/register.html", {"form": form, "selected_plan": selected_plan})
 
 
 def logout_view(request):
@@ -256,8 +270,10 @@ def settings_view(request):
         if form.is_valid():
             form.save()
             if selected_plan in PLAN_CONFIG:
-                subscription.plan = selected_plan
-                subscription.save(update_fields=["plan"])
+                if subscription.plan != selected_plan:
+                    subscription.plan = selected_plan
+                    subscription.plan_started_at = timezone.now()
+                    subscription.save(update_fields=["plan", "plan_started_at"])
             messages.success(request, "Ayarlar kaydedildi.")
             return redirect("settings_page")
     else:

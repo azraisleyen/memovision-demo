@@ -41,7 +41,7 @@
                         {% endfor %}
                     </ul>
 
-                    <a href="{% url 'register' %}" class="primary-btn full">
+                    <a href="{% url 'register' %}?plan={{ plan.key }}" class="primary-btn full">
                         Başla
                     </a>
                 </article>
