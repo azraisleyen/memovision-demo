@@ -199,25 +199,6 @@ def create_pdf_report(analysis):
         pdf.setStrokeColorRGB(*stroke_rgb)
         pdf.roundRect(x, y, w, h, radius, fill=1, stroke=1)
 
-    def draw_wrapped(text, x, y, max_width, line_height=13, font_size=10, color=(0.22, 0.28, 0.38)):
-        pdf.setFont(font_name, font_size)
-        pdf.setFillColorRGB(*color)
-        words = (text or "").split()
-        line = ""
-        current_y = y
-        for word in words:
-            candidate = f"{line} {word}".strip()
-            if pdf.stringWidth(candidate, font_name, font_size) <= max_width:
-                line = candidate
-            else:
-                pdf.drawString(x, current_y, line)
-                current_y -= line_height
-                line = word
-        if line:
-            pdf.drawString(x, current_y, line)
-            current_y -= line_height
-        return current_y
-
     def progress_row(y, label, value, color_rgb, hint):
         pdf.setFont(font_name, 12)
         pdf.setFillColorRGB(0.11, 0.16, 0.28)
@@ -258,8 +239,8 @@ def create_pdf_report(analysis):
     pdf.drawCentredString(width - 105, height - 74, "Tahmini skor etkisi")
 
     # Main two columns
-    rounded_box(28, height - 540, 336, 388, fill_rgb=(1, 1, 1), stroke_rgb=(0.87, 0.91, 0.97), radius=16)
-    rounded_box(372, height - 540, 196, 388, fill_rgb=(1, 1, 1), stroke_rgb=(0.87, 0.91, 0.97), radius=16)
+    rounded_box(28, height - 460, 328, 308, fill_rgb=(1, 1, 1), stroke_rgb=(0.87, 0.91, 0.97), radius=16)
+    rounded_box(372, height - 460, 196, 308, fill_rgb=(1, 1, 1), stroke_rgb=(0.87, 0.91, 0.97), radius=16)
 
     pdf.setFont(font_name, 16)
     pdf.setFillColorRGB(0.08, 0.16, 0.33)
@@ -272,20 +253,11 @@ def create_pdf_report(analysis):
     msg_score = 0.72 if (analysis.video_score or 0) > (analysis.brand_score or 0) else 0.68
     progress_row(height - 364, "Mesaj Netliği", msg_score, (0.09, 0.66, 0.78), "CTA sadeleştirilirse dönüşüm potansiyeli artar.")
 
-    pdf.setFont(font_name, 12)
-    pdf.setFillColorRGB(0.12, 0.19, 0.34)
-    pdf.drawString(42, height - 418, "Yönetici Özeti")
-    summary_text = (
-        "Video akışı dikkat çekici bir temel sunuyor. Marka öğeleri ilk karelerde daha görünür "
-        "kullanılır ve CTA kısa/aksiyon odaklı hale getirilirse performans dengeli biçimde artar."
-    )
-    draw_wrapped(summary_text, 42, height - 436, 308, line_height=14, font_size=10)
-
     pdf.setFont(font_name, 16)
     pdf.setFillColorRGB(0.08, 0.16, 0.33)
     pdf.drawString(384, height - 182, "AI Insights")
 
-    rounded_box(384, height - 358, 172, 162, fill_rgb=(0.98, 0.95, 0.90), stroke_rgb=(0.95, 0.78, 0.58), radius=12)
+    rounded_box(384, height - 332, 172, 136, fill_rgb=(0.98, 0.95, 0.90), stroke_rgb=(0.95, 0.78, 0.58), radius=12)
     pdf.setFont(font_name, 10)
     pdf.setFillColorRGB(0.78, 0.34, 0.03)
     pdf.drawString(394, height - 214, "ÖNCELİKLİ AKSİYONLAR")
@@ -297,23 +269,16 @@ def create_pdf_report(analysis):
     ]
     y = height - 234
     for idx, rec in enumerate(recs[:3], start=1):
-        y = draw_wrapped(f"{idx}. {rec}", 394, y, 152, line_height=13, font_size=10, color=(0.16, 0.20, 0.29))
-        y -= 4
+        pdf.drawString(394, y, f"{idx}. {rec[:42]}")
+        y -= 24
 
-    rounded_box(384, height - 474, 172, 104, fill_rgb=(0.92, 0.95, 1.0), stroke_rgb=(0.75, 0.84, 0.98), radius=12)
+    rounded_box(384, height - 444, 172, 96, fill_rgb=(0.92, 0.95, 1.0), stroke_rgb=(0.75, 0.84, 0.98), radius=12)
     pdf.setFont(font_name, 10)
     pdf.setFillColorRGB(0.17, 0.36, 0.78)
     pdf.drawString(394, height - 368, "ESTIMATED IMPACT")
     pdf.setFillColorRGB(0.20, 0.25, 0.36)
-    draw_wrapped(
-        f"Toplam memorability etkisi yaklaşık +{analysis.estimated_gain:.2f} artabilir.",
-        394,
-        height - 388,
-        152,
-        line_height=14,
-        font_size=10,
-        color=(0.20, 0.25, 0.36),
-    )
+    pdf.drawString(394, height - 388, f"Toplam memorability etkisi")
+    pdf.drawString(394, height - 404, f"yaklaşık +{analysis.estimated_gain:.2f} artabilir.")
 
     # Bottom cards
     titles = ["Risk Areas", "Weaknesses", "Strengths"]
@@ -325,11 +290,13 @@ def create_pdf_report(analysis):
     colors = [(0.85, 0.25, 0.20), (0.18, 0.34, 0.82), (0.04, 0.60, 0.44)]
     x = 28
     for i in range(3):
-        rounded_box(x, height - 664, 176, 160, fill_rgb=(0.98, 0.99, 1.0), stroke_rgb=(0.88, 0.91, 0.95), radius=12)
+        rounded_box(x, height - 560, 176, 86, fill_rgb=(0.98, 0.99, 1.0), stroke_rgb=(0.88, 0.91, 0.95), radius=12)
         pdf.setFont(font_name, 10)
         pdf.setFillColorRGB(*colors[i])
-        pdf.drawString(x + 10, height - 528, titles[i])
-        draw_wrapped(texts[i], x + 10, height - 546, 156, line_height=13, font_size=10, color=(0.25, 0.31, 0.42))
+        pdf.drawString(x + 10, height - 535, titles[i])
+        pdf.setFont(font_name, 9)
+        pdf.setFillColorRGB(0.25, 0.31, 0.42)
+        pdf.drawString(x + 10, height - 552, texts[i][:58])
         x += 184
 
     pdf.setFont(font_name, 9)
