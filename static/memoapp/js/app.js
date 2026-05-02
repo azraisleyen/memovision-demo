@@ -299,26 +299,65 @@ function initDashboardInteractions() {
     const video = document.getElementById("analysisVideo");
     const items = document.querySelectorAll(".dm-suggestion-btn");
     const narrative = document.getElementById("agentNarrative");
+
+    function parseSeekFromTimeLabel(labelText) {
+        const match = (labelText || "").match(/(\d+):(\d{2})/);
+        if (!match) return NaN;
+        const minutes = Number.parseInt(match[1], 10);
+        const seconds = Number.parseInt(match[2], 10);
+        return (minutes * 60) + seconds;
+    }
+
+    function seekVideoTo(videoEl, seconds) {
+        if (!videoEl || Number.isNaN(seconds)) return;
+        const safeTarget = Math.max(0, seconds);
+
+        const applySeek = () => {
+            const maxSeek = Number.isFinite(videoEl.duration) ? Math.max(videoEl.duration - 0.05, 0) : safeTarget;
+            const target = Math.min(safeTarget, maxSeek);
+
+            videoEl.pause();
+            videoEl.currentTime = target;
+
+            const onSeeked = () => {
+                videoEl.play().catch(() => {});
+            };
+            videoEl.addEventListener("seeked", onSeeked, { once: true });
+        };
+
+        if (videoEl.readyState >= 1) {
+            applySeek();
+            return;
+        }
+
+        videoEl.preload = "auto";
+        videoEl.addEventListener("loadedmetadata", applySeek, { once: true });
+        videoEl.load();
+    }
+
     items.forEach((item) => {
         item.addEventListener("click", () => {
-            const seek = parseFloat(item.dataset.seek || "0");
-            if (video && !Number.isNaN(seek)) {
-                video.currentTime = seek;
-                video.play().catch(() => {});
+            items.forEach((btn) => btn.classList.remove("active"));
+            item.classList.add("active");
+            let seek = Number.parseFloat(item.dataset.seek ?? "");
+            if (Number.isNaN(seek)) {
+                const timeLabel = item.querySelector(".dm-time")?.textContent || "";
+                seek = parseSeekFromTimeLabel(timeLabel);
             }
+            seekVideoTo(video, seek);
             if (narrative) narrative.textContent = item.dataset.agent || "Öneri detayı bulunamadı.";
         });
     });
-
-    const refreshBtn = document.getElementById("refreshAnalysisBtn");
-    refreshBtn?.addEventListener("click", () => window.location.reload());
 
     const resetBtn = document.getElementById("resetAnalysisBtn");
     resetBtn?.addEventListener("click", () => {
         if (video) {
             video.pause();
             video.currentTime = 0;
+            video.load();
         }
+        items.forEach((item) => item.classList.remove("active"));
+        window.scrollTo({ top: 0, behavior: "smooth" });
         if (narrative) narrative.textContent = "Bir öneriye tıklayarak zaman bazlı agent açıklamasını görüntüleyin.";
     });
 }

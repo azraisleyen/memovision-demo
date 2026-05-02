@@ -12,8 +12,11 @@
       <p class="dm-subtitle-2">Tek demo video üzerinden sentetik skor, zaman bazlı iyileştirme önerileri ve kısa analiz raporu önizlemesi.</p>
     </div>
     <div class="dm-actions">
-      <button class="primary-btn" id="refreshAnalysisBtn">Analizi Yenile</button>
-      <button class="secondary-btn" id="resetAnalysisBtn">Sıfırla</button>
+      <form method="post" action="{% url 'rerun_analysis' analysis.pk %}" class="dm-inline-form">
+        {% csrf_token %}
+        <button type="submit" class="primary-btn">Analizi Yenile</button>
+      </form>
+      <button type="button" class="secondary-btn" id="resetAnalysisBtn">Sıfırla</button>
       <div class="dm-success">Video başarıyla analiz edildi</div>
     </div>
   </div>
@@ -29,13 +32,18 @@
         <p class="dm-helper">Öneriye tıklayınca video ilgili zamana gider ve agent açıklaması güncellenir.</p>
         <div class="dm-suggestion-list dm-suggestion-cards">
           {% for s in suggestions %}
-          <button class="dm-suggestion dm-suggestion-btn" data-seek="{{ s.seek }}" data-agent="{{ s.text }}">
-            <div class="dm-time">{{ s.time }}</div><div class="dm-impact">{{ s.impact }}</div>
-            <div class="dm-content"><div class="dm-s-title">{{ s.title }}</div><div class="dm-s-text">{{ s.text }}</div></div>
+          <button type="button" class="dm-suggestion dm-suggestion-btn" data-seek="{{ s.seek }}" data-agent="{{ s.text }}">
+            <div class="dm-suggestion-meta">
+              <div class="dm-time">{{ s.time }}</div>
+              <div class="dm-impact">{{ s.impact }}</div>
+            </div>
+            <div class="dm-content">
+              <div class="dm-s-title">{{ s.title }}</div>
+              <div class="dm-s-text">{{ s.text }}</div>
+            </div>
           </button>
           {% endfor %}
         </div>
-        <div class="dm-agent-box" id="agentNarrative">Bir öneriye tıklayarak zaman bazlı agent açıklamasını görüntüleyin.</div>
       </div>
 
       <div class="dm-card">
@@ -49,8 +57,22 @@
       <div class="dm-card">
         <div class="dm-card-title">📊 Skorlar</div>
         <div class="dm-score-grid {% if not show_brand_score %}single{% endif %}">
-          <div class="dm-score-box"><span>Video Hatırlanabilirlik</span><h2>{{ analysis.video_score|floatformat:2 }}</h2></div>
-          {% if show_brand_score %}<div class="dm-score-box"><span>Marka Hatırlanabilirlik</span><h2 class="green">{{ analysis.brand_score|floatformat:2 }}</h2></div>{% endif %}
+          <div class="dm-score-box">
+            <div class="dm-score-head">Video Skoru</div>
+            <div class="dm-score-value-row">
+              <div class="dm-score-value video">{{ analysis.video_score|floatformat:2 }}</div>
+              <div class="dm-score-outof">/ 1.00</div>
+            </div>
+          </div>
+          {% if show_brand_score %}
+          <div class="dm-score-box">
+            <div class="dm-score-head">Marka Skoru</div>
+            <div class="dm-score-value-row">
+              <div class="dm-score-value brand">{{ analysis.brand_score|floatformat:2 }}</div>
+              <div class="dm-score-outof">/ 1.00</div>
+            </div>
+          </div>
+          {% endif %}
         </div>
         <div class="dm-mini-row"><div><span>Güven</span><strong>{{ analysis.video_confidence|floatformat:2 }}</strong></div><div><span>Tahmini Etki</span><strong>+{{ analysis.estimated_gain|floatformat:2 }}</strong></div></div>
       </div>
