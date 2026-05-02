@@ -300,31 +300,38 @@ function initDashboardInteractions() {
     const items = document.querySelectorAll(".dm-suggestion-btn");
     const narrative = document.getElementById("agentNarrative");
 
+    function parseSeekFromTimeLabel(labelText) {
+        const match = (labelText || "").match(/(\d+):(\d{2})/);
+        if (!match) return NaN;
+        const minutes = Number.parseInt(match[1], 10);
+        const seconds = Number.parseInt(match[2], 10);
+        return (minutes * 60) + seconds;
+    }
+
     function seekVideoTo(videoEl, seconds) {
         if (!videoEl || Number.isNaN(seconds)) return;
+        const safeTarget = Math.max(0, seconds);
 
         const applySeek = () => {
-            const safeTarget = Math.max(0, seconds);
-            if (typeof videoEl.fastSeek === "function") {
-                videoEl.fastSeek(safeTarget);
-            } else {
+            videoEl.pause();
+            videoEl.currentTime = safeTarget;
+            setTimeout(() => {
                 videoEl.currentTime = safeTarget;
-            }
-            videoEl.play().catch(() => {});
+                videoEl.play().catch(() => {});
+            }, 40);
         };
 
-        if (videoEl.readyState >= 1) {
-            applySeek();
-        } else {
-            const onReady = () => applySeek();
-            videoEl.addEventListener("loadedmetadata", onReady, { once: true });
-            videoEl.addEventListener("canplay", onReady, { once: true });
-        }
+        if (videoEl.readyState >= 1) applySeek();
+        else videoEl.addEventListener("loadedmetadata", applySeek, { once: true });
     }
 
     items.forEach((item) => {
         item.addEventListener("click", () => {
-            const seek = Number.parseFloat(item.dataset.seek ?? "");
+            let seek = Number.parseFloat(item.dataset.seek ?? "");
+            if (Number.isNaN(seek)) {
+                const timeLabel = item.querySelector(".dm-time")?.textContent || "";
+                seek = parseSeekFromTimeLabel(timeLabel);
+            }
             seekVideoTo(video, seek);
             if (narrative) narrative.textContent = item.dataset.agent || "Öneri detayı bulunamadı.";
         });
