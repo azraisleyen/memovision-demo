@@ -337,6 +337,8 @@ function initDashboardInteractions() {
 
     items.forEach((item) => {
         item.addEventListener("click", () => {
+            items.forEach((btn) => btn.classList.remove("active"));
+            item.classList.add("active");
             let seek = Number.parseFloat(item.dataset.seek ?? "");
             if (Number.isNaN(seek)) {
                 const timeLabel = item.querySelector(".dm-time")?.textContent || "";
@@ -347,15 +349,15 @@ function initDashboardInteractions() {
         });
     });
 
-    const refreshBtn = document.getElementById("refreshAnalysisBtn");
-    refreshBtn?.addEventListener("click", () => window.location.reload());
-
     const resetBtn = document.getElementById("resetAnalysisBtn");
     resetBtn?.addEventListener("click", () => {
         if (video) {
             video.pause();
             video.currentTime = 0;
+            video.load();
         }
+        items.forEach((item) => item.classList.remove("active"));
+        window.scrollTo({ top: 0, behavior: "smooth" });
         if (narrative) narrative.textContent = "Bir öneriye tıklayarak zaman bazlı agent açıklamasını görüntüleyin.";
     });
 }

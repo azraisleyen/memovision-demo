@@ -12,8 +12,11 @@
       <p class="dm-subtitle-2">Tek demo video üzerinden sentetik skor, zaman bazlı iyileştirme önerileri ve kısa analiz raporu önizlemesi.</p>
     </div>
     <div class="dm-actions">
-      <button class="primary-btn" id="refreshAnalysisBtn">Analizi Yenile</button>
-      <button class="secondary-btn" id="resetAnalysisBtn">Sıfırla</button>
+      <form method="post" action="{% url 'rerun_analysis' analysis.pk %}" class="dm-inline-form">
+        {% csrf_token %}
+        <button type="submit" class="primary-btn">Analizi Yenile</button>
+      </form>
+      <button type="button" class="secondary-btn" id="resetAnalysisBtn">Sıfırla</button>
       <div class="dm-success">Video başarıyla analiz edildi</div>
     </div>
   </div>

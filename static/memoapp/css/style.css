@@ -1729,6 +1729,11 @@ input {
     outline: none;
 }
 
+.dm-suggestion-btn.active {
+    border-color: rgba(87, 143, 255, 0.82);
+    box-shadow: 0 10px 24px rgba(13, 38, 89, 0.42);
+}
+
 .dm-suggestion-meta {
     display: flex;
     justify-content: space-between;
@@ -1795,4 +1800,16 @@ input {
     .dm-s-text {
         font-size: inherit;
     }
+}
+
+.dm-actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.dm-inline-form {
+    margin: 0;
 }
