@@ -313,16 +313,26 @@ function initDashboardInteractions() {
         const safeTarget = Math.max(0, seconds);
 
         const applySeek = () => {
+            const maxSeek = Number.isFinite(videoEl.duration) ? Math.max(videoEl.duration - 0.05, 0) : safeTarget;
+            const target = Math.min(safeTarget, maxSeek);
+
             videoEl.pause();
-            videoEl.currentTime = safeTarget;
-            setTimeout(() => {
-                videoEl.currentTime = safeTarget;
+            videoEl.currentTime = target;
+
+            const onSeeked = () => {
                 videoEl.play().catch(() => {});
-            }, 40);
+            };
+            videoEl.addEventListener("seeked", onSeeked, { once: true });
         };
 
-        if (videoEl.readyState >= 1) applySeek();
-        else videoEl.addEventListener("loadedmetadata", applySeek, { once: true });
+        if (videoEl.readyState >= 1) {
+            applySeek();
+            return;
+        }
+
+        videoEl.preload = "auto";
+        videoEl.addEventListener("loadedmetadata", applySeek, { once: true });
+        videoEl.load();
     }
 
     items.forEach((item) => {
