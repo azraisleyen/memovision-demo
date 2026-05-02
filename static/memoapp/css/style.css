@@ -1641,18 +1641,18 @@ input {
 .dm-time {
     color: #17d7ff;
     font-weight: 800;
-    font-size: 30px;
+    font-size: 12px;
     letter-spacing: -0.01em;
 }
 
 .dm-impact {
     color: #68f2be;
     font-weight: 800;
-    font-size: 28px;
+    font-size: 11px;
     background: rgba(18, 107, 90, 0.35);
     border: 1px solid rgba(69, 208, 161, 0.24);
     border-radius: 999px;
-    padding: 4px 12px;
+    padding: 6px 12px;
     line-height: 1;
 }
 

@@ -299,13 +299,28 @@ function initDashboardInteractions() {
     const video = document.getElementById("analysisVideo");
     const items = document.querySelectorAll(".dm-suggestion-btn");
     const narrative = document.getElementById("agentNarrative");
+
+    function seekVideoTo(videoEl, seconds) {
+        if (!videoEl || Number.isNaN(seconds)) return;
+        const applySeek = () => {
+            videoEl.currentTime = seconds;
+            videoEl.play().catch(() => {});
+        };
+
+        if (videoEl.readyState >= 1) {
+            applySeek();
+            return;
+        }
+
+        videoEl.addEventListener("loadedmetadata", applySeek, { once: true });
+        videoEl.load();
+    }
+
     items.forEach((item) => {
         item.addEventListener("click", () => {
-            const seek = parseFloat(item.dataset.seek || "0");
-            if (video && !Number.isNaN(seek)) {
-                video.currentTime = seek;
-                video.play().catch(() => {});
-            }
+            const seekAttr = item.getAttribute("data-seek");
+            const seek = Number(seekAttr);
+            seekVideoTo(video, seek);
             if (narrative) narrative.textContent = item.dataset.agent || "Öneri detayı bulunamadı.";
         });
     });
