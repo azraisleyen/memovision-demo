@@ -226,10 +226,6 @@ def create_pdf_report(analysis):
 
         if max_lines is not None and len(lines) > max_lines:
             lines = lines[:max_lines]
-            last = lines[-1]
-            while pdf.stringWidth(f"{last}…", font_name, font_size) > max_width and len(last) > 1:
-                last = last[:-1]
-            lines[-1] = f"{last}…"
 
         y = y_top
         for ln in lines:
@@ -250,7 +246,7 @@ def create_pdf_report(analysis):
         bar_w = max(10, min(w, w * float(value or 0)))
         rounded_box(x, y + 7, bar_w, 9, fill_rgb=color_rgb, stroke_rgb=color_rgb, radius=5)
 
-        draw_wrapped_text(x, y - 7, hint, max_width=w, font_size=9, color=(0.35, 0.43, 0.56), leading=11, max_lines=2)
+        draw_wrapped_text(x, y - 7, hint, max_width=w, font_size=9, color=(0.35, 0.43, 0.56), leading=11, max_lines=4)
 
     # Background
     pdf.setFillColorRGB(0.96, 0.97, 1.0)
@@ -273,7 +269,7 @@ def create_pdf_report(analysis):
         font_size=30,
         color=(0.06, 0.11, 0.21),
         leading=31,
-        max_lines=2,
+        max_lines=3,
     )
 
     filename = Path(analysis.original_video.name).name if analysis.original_video else 'Video'
@@ -310,7 +306,7 @@ def create_pdf_report(analysis):
         'Video Hatırlanabilirliği',
         float(analysis.video_score or 0),
         (0.20, 0.40, 0.87),
-        'Açılış enerjisi iyi. İlk saniye kurgusunu koruyup mesajı sadeleştirin.',
+        'Açılış enerjisi güçlü. İlk 2 saniyede marka vaadini tek cümleyle netleştirmek, izleyici tutulumunu ve hatırlanabilirliği birlikte yükseltir.',
     )
     metric_row(
         left_x + 16,
@@ -319,7 +315,7 @@ def create_pdf_report(analysis):
         'Marka Hatırlanabilirliği',
         float(analysis.brand_score or 0),
         (0.10, 0.73, 0.51),
-        'Marka unsurlarını erken kareye alarak görünürlüğü artırabilirsiniz.',
+        'Marka kodları doğru seçilmiş. Logoyu 3. saniyeden önce görünür kılmak ve ürün kadrajını merkezde tutmak geri çağrımı belirgin şekilde artırır.',
     )
 
     msg_score = 0.76 if (analysis.video_score or 0) >= 0.72 else 0.69
@@ -330,7 +326,7 @@ def create_pdf_report(analysis):
         'Mesaj Netliği',
         msg_score,
         (0.10, 0.66, 0.79),
-        'Tek bir güçlü çağrı metni, kampanya hatırlanmasını yükseltir.',
+        'Kapanışta tek bir net CTA ve kısa fayda cümlesi kullanımı, mesaj netliğini artırarak kampanya performansına doğrudan katkı sağlar.',
     )
 
     # Right column - action cards
@@ -360,8 +356,8 @@ def create_pdf_report(analysis):
             font_size=10,
             color=(0.18, 0.21, 0.30),
             leading=12,
-            max_lines=2,
-        ) - 4
+            max_lines=4,
+        ) - 2
 
     rounded_box(right_x, top_y - 342, right_w, 106, fill_rgb=(0.88, 0.93, 1.0), stroke_rgb=(0.70, 0.82, 0.98), radius=16)
     pdf.setFont(font_name, 11)
@@ -372,7 +368,7 @@ def create_pdf_report(analysis):
         f"Öneriler uygulandığında video+marka memorability skorunda yaklaşık "
         f"+{analysis.estimated_gain:.2f} puanlık iyileşme beklenir."
     )
-    draw_wrapped_text(right_x + 14, top_y - 278, impact_text, max_width=right_w - 28, font_size=10, color=(0.20, 0.27, 0.40), leading=13, max_lines=3)
+    draw_wrapped_text(right_x + 14, top_y - 278, impact_text, max_width=right_w - 28, font_size=10, color=(0.20, 0.27, 0.40), leading=13, max_lines=5)
 
     # Bottom full-width insights area
     bottom_y = 42
@@ -386,9 +382,9 @@ def create_pdf_report(analysis):
     col_w = (content_w - 32 - (col_gap * 2)) / 3
     titles = ['Risk Alanları', 'Gelişim Fırsatları', 'Güçlü Yönler']
     bodies = [
-        'Açılış sahnesindeki etki dalgalanması ve kapanıştaki geç CTA, marka geri çağrımını sınırlıyor.',
-        'Mesaj sıralamasını sadeleştirip ilk 5 saniyede marka odaklı bir vurgu ile dönüşüm potansiyelini artırabilirsiniz.',
-        'Görsel kalite, ritim ve ton tutarlılığı güçlü. Mevcut kurgu ölçeklenebilir bir yaratıcı temel sağlıyor.',
+        'Açılış sahnesinde duygu tetikleyici unsur güçlü olsa da marka vaadi birkaç saniye gecikiyor. Bu gecikme, ilk temas anındaki hatırlanma etkisini düşürüyor ve performans potansiyelini sınırlıyor.',
+        'Mesaj mimarisini “problem → çözüm → fayda → CTA” sıralamasına çekmek, özellikle mobil izleyicide anlaşılırlığı artırır. İlk 5 saniyede kısa bir değer önerisi vermek dönüşüme olumlu yansır.',
+        'Görsel kalite, kurgu ritmi ve tonal bütünlük güçlü. Mevcut yaratıcı dil marka kimliğiyle uyumlu; küçük optimizasyonlarla daha yüksek memorability skoruna ölçeklenebilir bir temel sunuyor.',
     ]
     palette = [
         ((1.0, 0.93, 0.93), (0.95, 0.78, 0.78), (0.84, 0.24, 0.24)),
@@ -399,11 +395,11 @@ def create_pdf_report(analysis):
     for i in range(3):
         x = margin + 16 + i * (col_w + col_gap)
         fill, stroke, title_color = palette[i]
-        rounded_box(x, bottom_y + 24, col_w, bottom_h - 66, fill_rgb=fill, stroke_rgb=stroke, radius=12)
+        rounded_box(x, bottom_y + 18, col_w, bottom_h - 60, fill_rgb=fill, stroke_rgb=stroke, radius=12)
         pdf.setFont(font_name, 11)
         pdf.setFillColorRGB(*title_color)
         pdf.drawString(x + 10, bottom_y + bottom_h - 58, titles[i])
-        draw_wrapped_text(x + 10, bottom_y + bottom_h - 78, bodies[i], max_width=col_w - 20, font_size=9, color=(0.22, 0.29, 0.40), leading=12, max_lines=8)
+        draw_wrapped_text(x + 10, bottom_y + bottom_h - 78, bodies[i], max_width=col_w - 20, font_size=9, color=(0.22, 0.29, 0.40), leading=12, max_lines=11)
 
     # Footer
     pdf.setFont(font_name, 9)
