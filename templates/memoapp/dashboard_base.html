@@ -25,10 +25,10 @@
             <div class="plan-card pro-plan-card">
                 <div class="plan-head">
                     <div class="plan-title">{{ current_plan.name }} Plan</div>
-                    <div class="plan-pill">Aktif</div>
+                    
                 </div>
-                <div class="plan-sub">Kalan hak: {{ remaining_text|cut:" " }}</div>
-                <div class="plan-note">Haklar günlük yenilenir. Plan değişiminde haklar tam yüklenir.</div>
+                <div class="plan-sub">{{ remaining_text|cut:" " }} analiz hakkı</div>
+                
                 <div class="progress-bar"><div class="progress-fill" style="width:{{ progress_pct }}%"></div></div>
                 <a href="{% url 'settings_page' %}" class="plan-link">Planları Gör →</a>
             </div>
