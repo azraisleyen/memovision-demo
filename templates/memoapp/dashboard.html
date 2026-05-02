@@ -16,7 +16,7 @@
         {% csrf_token %}
         <button type="submit" class="primary-btn">Analizi Yenile</button>
       </form>
-      <button type="button" class="secondary-btn" id="resetAnalysisBtn">Sıfırla</button>
+      <button type="button" class="secondary-btn" id="resetAnalysisBtn" data-reset-url="{% url 'new_analysis' %}">Sıfırla</button>
       <div class="dm-success">Video başarıyla analiz edildi</div>
     </div>
   </div>

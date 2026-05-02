@@ -351,13 +351,18 @@ function initDashboardInteractions() {
 
     const resetBtn = document.getElementById("resetAnalysisBtn");
     resetBtn?.addEventListener("click", () => {
+        const resetUrl = resetBtn.dataset.resetUrl;
+        if (resetUrl) {
+            window.location.href = resetUrl;
+            return;
+        }
+
         if (video) {
             video.pause();
             video.currentTime = 0;
             video.load();
         }
         items.forEach((item) => item.classList.remove("active"));
-        window.scrollTo({ top: 0, behavior: "smooth" });
         if (narrative) narrative.textContent = "Bir öneriye tıklayarak zaman bazlı agent açıklamasını görüntüleyin.";
     });
 }
