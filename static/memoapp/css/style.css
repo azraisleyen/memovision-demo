@@ -1559,7 +1559,7 @@ input {
 }
 
 .dm-score-value {
-    font-size: 40px;
+    font-size: 26px;
     line-height: 1;
     font-weight: 900;
     letter-spacing: -0.02em;
@@ -1574,7 +1574,7 @@ input {
 }
 
 .dm-score-outof {
-    font-size: 28px;
+    font-size: 18px;
     color: #c9daf5;
     font-weight: 500;
 }
