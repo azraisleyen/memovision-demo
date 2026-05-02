@@ -54,8 +54,22 @@
       <div class="dm-card">
         <div class="dm-card-title">📊 Skorlar</div>
         <div class="dm-score-grid {% if not show_brand_score %}single{% endif %}">
-          <div class="dm-score-box"><span>Video Hatırlanabilirlik</span><h2>{{ analysis.video_score|floatformat:2 }}</h2></div>
-          {% if show_brand_score %}<div class="dm-score-box"><span>Marka Hatırlanabilirlik</span><h2 class="green">{{ analysis.brand_score|floatformat:2 }}</h2></div>{% endif %}
+          <div class="dm-score-box">
+            <div class="dm-score-ring" style="--score: {{ analysis.video_score|floatformat:2 }}; --accent: #3b82f6;">
+              <div class="dm-score-ring-value">{{ analysis.video_score|floatformat:2 }}</div>
+            </div>
+            <div class="dm-score-label">Video</div>
+            <div class="dm-score-sub">Hatırlanabilirlik</div>
+          </div>
+          {% if show_brand_score %}
+          <div class="dm-score-box">
+            <div class="dm-score-ring" style="--score: {{ analysis.brand_score|floatformat:2 }}; --accent: #19c79c;">
+              <div class="dm-score-ring-value">{{ analysis.brand_score|floatformat:2 }}</div>
+            </div>
+            <div class="dm-score-label">Marka</div>
+            <div class="dm-score-sub">Hatırlanabilirlik</div>
+          </div>
+          {% endif %}
         </div>
         <div class="dm-mini-row"><div><span>Güven</span><strong>{{ analysis.video_confidence|floatformat:2 }}</strong></div><div><span>Tahmini Etki</span><strong>+{{ analysis.estimated_gain|floatformat:2 }}</strong></div></div>
       </div>
