@@ -360,6 +360,7 @@ function initDashboardInteractions() {
         if (video) {
             video.pause();
             video.currentTime = 0;
+            video.load();
         }
         items.forEach((item) => item.classList.remove("active"));
         if (narrative) narrative.textContent = "Bir öneriye tıklayarak zaman bazlı agent açıklamasını görüntüleyin.";
