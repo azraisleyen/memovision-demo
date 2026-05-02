@@ -1,5 +1,5 @@
 {% extends "memoapp/dashboard_base.html" %}
-{% load static %}
+{% load static l10n %}
 {% block body_page %}dashboard{% endblock %}
 {% block title %}Dashboard{% endblock %}
 {% block dashboard_content %}
@@ -55,7 +55,7 @@
         <div class="dm-card-title">📊 Skorlar</div>
         <div class="dm-score-grid {% if not show_brand_score %}single{% endif %}">
           <div class="dm-score-box">
-            <div class="dm-score-ring" style="--score: {{ analysis.video_score|floatformat:2 }}; --accent: #3b82f6;">
+            <div class="dm-score-ring" style="--score: {{ analysis.video_score|floatformat:2|unlocalize }}; --accent: #3b82f6;">
               <div class="dm-score-ring-value">{{ analysis.video_score|floatformat:2 }}</div>
             </div>
             <div class="dm-score-label">Video</div>
@@ -63,7 +63,7 @@
           </div>
           {% if show_brand_score %}
           <div class="dm-score-box">
-            <div class="dm-score-ring" style="--score: {{ analysis.brand_score|floatformat:2 }}; --accent: #19c79c;">
+            <div class="dm-score-ring" style="--score: {{ analysis.brand_score|floatformat:2|unlocalize }}; --accent: #19c79c;">
               <div class="dm-score-ring-value">{{ analysis.brand_score|floatformat:2 }}</div>
             </div>
             <div class="dm-score-label">Marka</div>
