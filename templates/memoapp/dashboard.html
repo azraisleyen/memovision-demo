@@ -41,7 +41,7 @@
       <div class="dm-card">
         <div class="dm-card-header"><h3>📄 Kısa Analiz Raporu</h3></div>
         <p class="dm-helper">Farklı sektör raporu formatına benzer şekilde özet skorlar, metrikler ve öncelikli aksiyonlar gösterilir.</p>
-        {% if analysis.report_pdf %}<div class="dm-report-zoom"><iframe class="dm-report-frame" src="{% url 'report_view' analysis.pk %}"></iframe></div>{% else %}<div class="dm-agent-box">Rapor henüz hazır değil.</div>{% endif %}
+        {% if analysis.report_pdf %}<iframe class="dm-report-frame" src="{% url 'report_view' analysis.pk %}"></iframe>{% else %}<div class="dm-agent-box">Rapor henüz hazır değil.</div>{% endif %}
       </div>
     </div>
 
