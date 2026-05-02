@@ -257,6 +257,30 @@ def dashboard(request, analysis_id):
 
 
 @login_required
+def rerun_analysis(request, analysis_id):
+    if request.method != "POST":
+        return redirect("dashboard", analysis_id=analysis_id)
+
+    analysis = get_object_or_404(UploadedAnalysis, pk=analysis_id, user=request.user)
+    analysis.status = "processing"
+    analysis.error_message = ""
+    analysis.save(update_fields=["status", "error_message", "updated_at"])
+
+    ok, error = process_uploaded_analysis(analysis)
+    if ok:
+        plan_ctx = _build_plan_context(request.user)
+        if not plan_ctx["show_brand_score"]:
+            analysis.brand_score = 0.0
+            analysis.brand_confidence = 0.0
+            analysis.save(update_fields=["brand_score", "brand_confidence"])
+        messages.success(request, "Analiz aynı video için yeniden oluşturuldu.")
+    else:
+        messages.error(request, error or "Analiz yeniden çalıştırılamadı.")
+
+    return redirect("dashboard", analysis_id=analysis.pk)
+
+
+@login_required
 def projects(request):
     analyses = UploadedAnalysis.objects.filter(user=request.user).order_by("-created_at")
     return render(request, "memoapp/projects.html", {"analyses": analyses, **_build_plan_context(request.user)})

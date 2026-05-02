@@ -23,6 +23,7 @@ urlpatterns = [
     # REPORTS
     path("analysis/<int:pk>/report/", views.report_view, name="report_view"),
     path("analysis/<int:pk>/download/", views.download_report, name="download_report"),
+    path("analysis/<int:analysis_id>/rerun/", views.rerun_analysis, name="rerun_analysis"),
 
     # SETTINGS
     path("settings/", views.settings_view, name="settings_page"),
