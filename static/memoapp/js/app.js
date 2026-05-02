@@ -36,6 +36,7 @@ function initPage() {
 
         case "dashboard":
             initFlashMessages();
+            initDashboardInteractions();
             break;
 
         default:
@@ -292,4 +293,35 @@ function setDuration(text) {
 
 function isValidUrl(url) {
     return url.startsWith("http://") || url.startsWith("https://");
+}
+
+function initDashboardInteractions() {
+    const video = document.getElementById("analysisVideo");
+    const items = document.querySelectorAll(".dm-suggestion-btn");
+    const narrative = document.getElementById("agentNarrative");
+    items.forEach((item) => {
+        item.addEventListener("click", () => {
+            const seek = parseFloat(item.dataset.seek || "0");
+            if (video && !Number.isNaN(seek)) {
+                video.currentTime = seek;
+                video.play().catch(() => {});
+            }
+            if (narrative) narrative.textContent = item.dataset.agent || "Öneri detayı bulunamadı.";
+        });
+    });
+
+    const printBtn = document.getElementById("printReportBtn");
+    printBtn?.addEventListener("click", () => window.print());
+
+    const refreshBtn = document.getElementById("refreshAnalysisBtn");
+    refreshBtn?.addEventListener("click", () => window.location.reload());
+
+    const resetBtn = document.getElementById("resetAnalysisBtn");
+    resetBtn?.addEventListener("click", () => {
+        if (video) {
+            video.pause();
+            video.currentTime = 0;
+        }
+        if (narrative) narrative.textContent = "Bir öneriye tıklayarak zaman bazlı agent açıklamasını görüntüleyin.";
+    });
 }

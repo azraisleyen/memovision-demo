@@ -2,127 +2,39 @@
 {% load static %}
 
 {% block content %}
-
-<!-- =========================================================
-    DASHBOARD LAYOUT (GLOBAL SHELL)
-    - Tüm dashboard sayfaları buradan türetilir
-========================================================= -->
 <div class="dashboard-shell">
-
-    <!-- =====================================================
-        SIDEBAR
-    ====================================================== -->
-    <aside class="sidebar">
-
-        <!-- ===============================
-            TOP SECTION (LOGO + NAV)
-        =============================== -->
+    <aside class="sidebar sidebar-pro">
         <div>
-
-            <!-- LOGO -->
             <div class="brand-box">
-
-                <div class="brand-icon">
-                    ▶
+                <div class="brand-icon">▶</div>
+                <div>
+                    <div class="brand-title">MemoVision Pro</div>
+                    <div class="brand-mode">Demo mode</div>
                 </div>
-
-                <div class="brand-title">
-                    MemoVision Pro
-                </div>
-
             </div>
 
-
-            <!-- NAVIGATION -->
             <nav class="sidebar-nav">
-
-                <!-- Yeni Analiz -->
-                <a href="{% url 'new_analysis' %}"
-                   class="nav-item {% if request.resolver_match.url_name in 'new_analysis dashboard analysis_detail' %}active{% endif %}">
-
-                    <span>⊕</span>
-                    Yeni Analiz
-
-                </a>
-
-
-                <!-- Geçmiş -->
-                <a href="{% url 'projects' %}"
-                   class="nav-item {% if request.resolver_match.url_name == 'projects' %}active{% endif %}">
-
-                    <span>🕘</span>
-                    Geçmiş Analizler
-
-                </a>
-
+                <a href="{% url 'new_analysis' %}" class="nav-item {% if request.resolver_match.url_name in 'new_analysis dashboard analysis_detail' %}active{% endif %}"><span>⊕</span>Yeni Analiz</a>
+                <a href="{% url 'projects' %}" class="nav-item {% if request.resolver_match.url_name == 'projects' %}active{% endif %}"><span>🕘</span>Geçmiş Analizler</a>
+                <a href="{% url 'settings_page' %}" class="nav-item {% if request.resolver_match.url_name == 'settings_page' %}active{% endif %}"><span>⚙</span>Ayarlar</a>
             </nav>
-
         </div>
 
-
-        <!-- ===============================
-            BOTTOM SECTION (PLAN + SETTINGS)
-        =============================== -->
         <div>
-
-            <!-- PLAN CARD -->
-            <div class="plan-card">
-
-                <div class="plan-title">
-                    {{ current_plan.name }} Plan
+            <div class="plan-card pro-plan-card">
+                <div class="plan-head">
+                    <div class="plan-title">{{ current_plan.name }} Plan</div>
+                    <div class="plan-pill">Aktif</div>
                 </div>
-
-                <div class="plan-sub">
-                    {{ remaining_text }} analiz hakkı
-                </div>
-
-                <!-- Progress bar -->
-                <div class="progress-bar">
-                    <div class="progress-fill"
-                         style="width:{{ progress_pct }}%">
-                    </div>
-                </div>
-
+                <div class="plan-sub">Kalan hak: {{ remaining_text }}</div>
+                <div class="plan-note">Haklar günlük yenilenir. Plan değişiminde haklar tam yüklenir.</div>
+                <div class="progress-bar"><div class="progress-fill" style="width:{{ progress_pct }}%"></div></div>
+                <a href="{% url 'settings_page' %}" class="plan-link">Planları Gör →</a>
             </div>
-
-
-            <!-- SETTINGS + LOGOUT -->
-            <div class="sidebar-nav bottom-nav">
-
-                <a href="{% url 'settings_page' %}"
-                   class="nav-item {% if request.resolver_match.url_name == 'settings_page' %}active{% endif %}">
-
-                    <span>⚙</span>
-                    Ayarlar
-
-                </a>
-
-                <a href="{% url 'logout' %}"
-                   class="nav-item">
-
-                    <span>↪</span>
-                    Çıkış Yap
-
-                </a>
-
-            </div>
-
+            <a href="{% url 'logout' %}" class="nav-item"><span>↪</span>Çıkış</a>
         </div>
-
     </aside>
 
-
-    <!-- =====================================================
-        MAIN CONTENT AREA
-        - Tüm sayfalar buraya render edilir
-    ====================================================== -->
-    <main class="dashboard-main">
-
-        <!-- İçerik buraya gelir -->
-        {% block dashboard_content %}{% endblock %}
-
-    </main>
-
+    <main class="dashboard-main">{% block dashboard_content %}{% endblock %}</main>
 </div>
-
 {% endblock %}
