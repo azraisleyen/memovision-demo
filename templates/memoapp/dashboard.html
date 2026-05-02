@@ -55,19 +55,19 @@
         <div class="dm-card-title">📊 Skorlar</div>
         <div class="dm-score-grid {% if not show_brand_score %}single{% endif %}">
           <div class="dm-score-box">
-            <div class="dm-score-ring" style="--score: {{ analysis.video_score|floatformat:2|unlocalize }}; --accent: #3b82f6;">
-              <div class="dm-score-ring-value">{{ analysis.video_score|floatformat:2 }}</div>
+            <div class="dm-score-head">Video Skoru</div>
+            <div class="dm-score-value-row">
+              <div class="dm-score-value video">{{ analysis.video_score|floatformat:2 }}</div>
+              <div class="dm-score-outof">/ 1.00</div>
             </div>
-            <div class="dm-score-label">Video</div>
-            <div class="dm-score-sub">Hatırlanabilirlik</div>
           </div>
           {% if show_brand_score %}
           <div class="dm-score-box">
-            <div class="dm-score-ring" style="--score: {{ analysis.brand_score|floatformat:2|unlocalize }}; --accent: #19c79c;">
-              <div class="dm-score-ring-value">{{ analysis.brand_score|floatformat:2 }}</div>
+            <div class="dm-score-head">Marka Skoru</div>
+            <div class="dm-score-value-row">
+              <div class="dm-score-value brand">{{ analysis.brand_score|floatformat:2 }}</div>
+              <div class="dm-score-outof">/ 1.00</div>
             </div>
-            <div class="dm-score-label">Marka</div>
-            <div class="dm-score-sub">Hatırlanabilirlik</div>
           </div>
           {% endif %}
         </div>
