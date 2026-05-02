@@ -16,6 +16,7 @@
             <nav class="sidebar-nav">
                 <a href="{% url 'new_analysis' %}" class="nav-item {% if request.resolver_match.url_name in 'new_analysis dashboard analysis_detail' %}active{% endif %}"><span>⊕</span>Yeni Analiz</a>
                 <a href="{% url 'projects' %}" class="nav-item {% if request.resolver_match.url_name == 'projects' %}active{% endif %}"><span>🕘</span>Geçmiş Analizler</a>
+                <a href="{% url 'public_plans' %}" class="nav-item {% if request.resolver_match.url_name == 'public_plans' %}active{% endif %}"><span>💠</span>Planlar</a>
                 <a href="{% url 'settings_page' %}" class="nav-item {% if request.resolver_match.url_name == 'settings_page' %}active{% endif %}"><span>⚙</span>Ayarlar</a>
             </nav>
         </div>
@@ -26,7 +27,7 @@
                     <div class="plan-title">{{ current_plan.name }} Plan</div>
                     <div class="plan-pill">Aktif</div>
                 </div>
-                <div class="plan-sub">Kalan hak: {{ remaining_text }}</div>
+                <div class="plan-sub">Kalan hak: {{ remaining_text|cut:" " }}</div>
                 <div class="plan-note">Haklar günlük yenilenir. Plan değişiminde haklar tam yüklenir.</div>
                 <div class="progress-bar"><div class="progress-fill" style="width:{{ progress_pct }}%"></div></div>
                 <a href="{% url 'settings_page' %}" class="plan-link">Planları Gör →</a>
