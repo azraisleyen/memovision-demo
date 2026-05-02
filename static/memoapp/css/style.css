@@ -887,6 +887,74 @@ input {
     font-size: 14px;
 }
 
+/* New Analysis - score preview panel aligned with real output */
+.na-score-grid,
+.na-kpi-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.na-kpi-grid {
+    margin-top: 14px;
+}
+
+.na-score-grid.single,
+.na-kpi-grid.single {
+    grid-template-columns: 1fr;
+}
+
+.na-score-tile,
+.na-kpi-tile {
+    background: rgba(16, 41, 86, 0.88);
+    border: 1px solid rgba(58, 110, 196, 0.45);
+    border-radius: 18px;
+    padding: 16px;
+}
+
+.na-score-head,
+.na-kpi-head {
+    color: #9db6df;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.na-score-value-row {
+    margin-top: 10px;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.na-score-value {
+    font-size: 52px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.02em;
+}
+
+.na-score-value.video {
+    color: #37b3ff;
+}
+
+.na-score-value.brand {
+    color: #23dcc4;
+}
+
+.na-score-outof {
+    color: #d8e6ff;
+    font-size: 40px;
+    font-weight: 500;
+}
+
+.na-kpi-value {
+    margin-top: 8px;
+    color: #f2f7ff;
+    font-size: 46px;
+    font-weight: 900;
+    line-height: 1;
+}
+
 .agent-box,
 .heatmap-preview-box {
     background: rgba(9, 23, 57, 0.82);
