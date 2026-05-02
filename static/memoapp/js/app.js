@@ -302,24 +302,29 @@ function initDashboardInteractions() {
 
     function seekVideoTo(videoEl, seconds) {
         if (!videoEl || Number.isNaN(seconds)) return;
+
         const applySeek = () => {
-            videoEl.currentTime = seconds;
+            const safeTarget = Math.max(0, seconds);
+            if (typeof videoEl.fastSeek === "function") {
+                videoEl.fastSeek(safeTarget);
+            } else {
+                videoEl.currentTime = safeTarget;
+            }
             videoEl.play().catch(() => {});
         };
 
         if (videoEl.readyState >= 1) {
             applySeek();
-            return;
+        } else {
+            const onReady = () => applySeek();
+            videoEl.addEventListener("loadedmetadata", onReady, { once: true });
+            videoEl.addEventListener("canplay", onReady, { once: true });
         }
-
-        videoEl.addEventListener("loadedmetadata", applySeek, { once: true });
-        videoEl.load();
     }
 
     items.forEach((item) => {
         item.addEventListener("click", () => {
-            const seekAttr = item.getAttribute("data-seek");
-            const seek = Number(seekAttr);
+            const seek = Number.parseFloat(item.dataset.seek ?? "");
             seekVideoTo(video, seek);
             if (narrative) narrative.textContent = item.dataset.agent || "Öneri detayı bulunamadı.";
         });
