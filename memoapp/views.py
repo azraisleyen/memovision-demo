@@ -8,6 +8,7 @@ from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.utils import timezone
+from django.views.decorators.clickjacking import xframe_options_exempt
 
 from .forms import AnalysisCreateForm, LoginForm, RegisterForm, UserSettingsForm
 from .models import UploadedAnalysis, UserSubscription
@@ -300,6 +301,7 @@ def download_report(request, pk):
 
 
 @login_required
+@xframe_options_exempt
 def report_view(request, pk):
     analysis = get_object_or_404(UploadedAnalysis, pk=pk, user=request.user)
     return render(request, "memoapp/report.html", {"analysis": analysis, "video_label": "Yüksek" if analysis.video_score >= 0.7 else "Orta", "brand_label": "Yüksek" if analysis.brand_score >= 0.7 else "Orta", "main_comment": "Genel değerlendirme", "summary": "Özet", "suggestions": build_dashboard_suggestions(analysis), **_build_plan_context(request.user)})

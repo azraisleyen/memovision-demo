@@ -1,225 +1,68 @@
 {% extends "memoapp/dashboard_base.html" %}
 {% load static %}
-
 {% block body_page %}dashboard{% endblock %}
-
 {% block title %}Dashboard{% endblock %}
-
 {% block dashboard_content %}
-
 <div class="dashboard-modern">
-
-<!-- ================= HEADER ================= -->
-<div class="dm-header">
-
+  <div class="dm-header">
     <div>
-        <div class="dm-badge">● Analiz Sonuçları</div>
-
-        <h1 class="dm-title">
-            {{ analysis.title|default:"Analiz Dashboard" }}
-        </h1>
-
-        <p class="dm-subtitle">
-            Yönetici özeti: Videonun akılda kalıcılığını artırmak için sade, uygulanabilir aksiyonlar.
-        </p>
+      <div class="dm-badge">● Analiz Sonuçları</div>
+      <h1 class="dm-title">{{ analysis.title|default:"Analiz Dashboard" }}</h1>
+      <p class="dm-subtitle">Yönetici özeti: Videonun akılda kalıcılığını artırmak için sade, uygulanabilir aksiyonlar.</p>
+      <p class="dm-subtitle-2">Tek demo video üzerinden sentetik skor, zaman bazlı iyileştirme önerileri ve kısa analiz raporu önizlemesi.</p>
     </div>
-
-    <div class="dm-success">
-        Video başarıyla analiz edildi
+    <div class="dm-actions">
+      <button class="primary-btn" id="refreshAnalysisBtn">Analizi Yenile</button>
+      <button class="secondary-btn" id="resetAnalysisBtn">Sıfırla</button>
+      <div class="dm-success">Video başarıyla analiz edildi</div>
     </div>
+  </div>
 
-</div>
+  <div class="dm-grid">
+    <div class="dm-left">
+      <div class="dm-card"><div class="dm-card-title">🎬 Analiz Videosu</div>
+        <video class="dm-video" id="analysisVideo" controls preload="metadata">{% if analysis.original_video %}<source src="{{ analysis.original_video.url }}" type="video/mp4">{% endif %}</video>
+      </div>
 
-
-<!-- ================= GRID ================= -->
-<div class="dm-grid">
-
-<!-- ================= LEFT ================= -->
-<div class="dm-left">
-
-    <!-- VIDEO -->
-    <div class="dm-card">
-
-        <div class="dm-card-title">✨ Hızlı Özet</div>
-        <div class="dm-summary">
-            {% if analysis.video_score >= 0.75 %}
-                Video açılışı güçlü. Mesaj netliği korunurken marka görünürlüğü artırılırsa etki yükselir.
-            {% else %}
-                Açılış etkisini güçlendirip ilk saniyelerde dikkat toplayan bir sahne önerilir.
-            {% endif %}
+      <div class="dm-card">
+        <div class="dm-card-title">🧠 Zaman Bazlı Öneriler</div>
+        <p class="dm-helper">Öneriye tıklayınca video ilgili zamana gider ve agent açıklaması güncellenir.</p>
+        <div class="dm-suggestion-list dm-suggestion-cards">
+          {% for s in suggestions %}
+          <button class="dm-suggestion dm-suggestion-btn" data-seek="{{ s.seek }}" data-agent="{{ s.text }}">
+            <div class="dm-time">{{ s.time }}</div><div class="dm-impact">{{ s.impact }}</div>
+            <div class="dm-content"><div class="dm-s-title">{{ s.title }}</div><div class="dm-s-text">{{ s.text }}</div></div>
+          </button>
+          {% endfor %}
         </div>
+        <div class="dm-agent-box" id="agentNarrative">Bir öneriye tıklayarak zaman bazlı agent açıklamasını görüntüleyin.</div>
+      </div>
 
+      <div class="dm-card">
+        <div class="dm-card-header"><h3>📄 Kısa Analiz Raporu</h3></div>
+        <p class="dm-helper">Farklı sektör raporu formatına benzer şekilde özet skorlar, metrikler ve öncelikli aksiyonlar gösterilir.</p>
+        {% if analysis.report_pdf %}<div class="dm-report-zoom"><iframe class="dm-report-frame" src="{% url 'report_view' analysis.pk %}"></iframe></div>{% else %}<div class="dm-agent-box">Rapor henüz hazır değil.</div>{% endif %}
+      </div>
     </div>
 
-    <div class="dm-card">
-
-        <div class="dm-card-title">🎬 Analiz Videosu</div>
-
-        <video class="dm-video" controls preload="metadata">
-            {% if analysis.original_video %}
-                <source src="{{ analysis.original_video.url }}" type="video/mp4">
-            {% else %}
-                <source src="{% static 'memoapp/video/demo.mp4' %}" type="video/mp4">
-            {% endif %}
-        </video>
-
-    </div>
-
-
-    <!-- AI SUGGESTIONS -->
-    <div class="dm-card">
-
-        <div class="dm-card-title">🧠 Karar Destek Akışı</div>
-
-        <div class="dm-suggestion-list">
-
-            {% for s in suggestions %}
-            <div class="dm-suggestion">
-
-                <div class="dm-time">{{ s.time }}</div>
-
-                <div class="dm-content">
-                    <div class="dm-s-title">{{ s.title }}</div>
-                    <div class="dm-s-text">{{ s.text }}</div>
-                </div>
-
-                <div class="dm-impact">{{ s.impact }}</div>
-
-            </div>
-            {% empty %}
-                <div class="dm-empty">Henüz öneri yok</div>
-            {% endfor %}
-
-        </div>
-
-    </div>
-
-
-    <!-- REPORT -->
-    <div class="dm-card">
-
-        <div class="dm-card-header">
-
-            <h3>📄 Analiz Raporu</h3>
-
-            <a href="{% url 'download_report' analysis.pk %}" class="dm-btn">
-                PDF İndir
-            </a>
-
-        </div>
-
-        <div class="dm-report">
-
-            <div class="dm-metrics">
-
-                <div class="dm-metric">
-                    <span>Video</span>
-                    <strong>{{ analysis.video_score|floatformat:2 }}</strong>
-                </div>
-
-                <div class="dm-metric">
-                    <span>Marka</span>
-                    <strong>{{ analysis.brand_score|floatformat:2 }}</strong>
-                </div>
-
-                <div class="dm-metric">
-                    <span>Etki</span>
-                    <strong>+{{ analysis.estimated_gain|floatformat:2 }}</strong>
-                </div>
-
-            </div>
-
-            <div class="dm-summary">
-
-                {% if analysis.video_score > analysis.brand_score %}
-                    Video güçlü, marka artırılmalı.
-                {% elif analysis.brand_score > analysis.video_score %}
-                    Marka iyi, video geliştirilmeli.
-                {% else %}
-                    Dengeli performans.
-                {% endif %}
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- ================= RIGHT ================= -->
-<div class="dm-right">
-
-    <!-- SCORES -->
-    <div class="dm-card">
-
+    <div class="dm-right">
+      <div class="dm-card">
         <div class="dm-card-title">📊 Skorlar</div>
-
-        <div class="dm-score-grid">
-
-            <div class="dm-score-box">
-                <span>Video</span>
-                <h2>{{ analysis.video_score|floatformat:2 }}</h2>
-            </div>
-
-            {% if show_brand_score %}
-            <div class="dm-score-box">
-                <span>Marka</span>
-                <h2 class="green">{{ analysis.brand_score|floatformat:2 }}</h2>
-            </div>
-            {% endif %}
-
+        <div class="dm-score-grid {% if not show_brand_score %}single{% endif %}">
+          <div class="dm-score-box"><span>Video Hatırlanabilirlik</span><h2>{{ analysis.video_score|floatformat:2 }}</h2></div>
+          {% if show_brand_score %}<div class="dm-score-box"><span>Marka Hatırlanabilirlik</span><h2 class="green">{{ analysis.brand_score|floatformat:2 }}</h2></div>{% endif %}
         </div>
+        <div class="dm-mini-row"><div><span>Güven</span><strong>{{ analysis.video_confidence|floatformat:2 }}</strong></div><div><span>Tahmini Etki</span><strong>+{{ analysis.estimated_gain|floatformat:2 }}</strong></div></div>
+      </div>
 
+      <div class="dm-card"><div class="dm-card-title">✨ Generative AI Öneri Modülü</div>
+        <p class="dm-helper">Konuşma paneli değil; skorları iyileştirmek için öneri üretir.</p>
+        <div class="dm-ai-box">Analiz başlatıldığında Generative AI modülü, video ve marka hatırlanabilirliğini artırmaya yönelik kısa ve uygulanabilir öneriler sunacaktır.</div>
+        <div class="dm-ai-box muted"><strong>ÖNERİ MANTIĞI</strong><br>Bu demo sürümünde öneriler statiktir. Gerçek sistemde model skorları, zaman bazlı bulgular ve görsel/metinsel sinyaller rapor formatına dönüştürülür.</div>
+      </div>
+
+      {% if analysis.heatmap %}<div class="dm-card"><div class="dm-card-title">🔥 Heatmap</div><img src="{{ analysis.heatmap.url }}" class="dm-img"></div>{% endif %}
     </div>
-
-
-    <!-- HEATMAP -->
-    {% if analysis.heatmap %}
-    <div class="dm-card">
-
-        <div class="dm-card-title">🔥 Heatmap</div>
-
-        <img src="{{ analysis.heatmap.url }}" class="dm-img">
-
-    </div>
-    {% endif %}
-
-
-    <!-- HISTORY -->
-    <div class="dm-card">
-
-        <div class="dm-card-title">📁 Geçmiş Analizler</div>
-
-        <div class="dm-history">
-
-            {% for item in analyses %}
-            <a href="{% url 'dashboard' item.pk %}" class="dm-history-item">
-
-                <div>
-                    <div class="dm-h-title">{{ item.title }}</div>
-                    <div class="dm-h-meta">
-                        {{ item.created_at|timesince }} önce
-                    </div>
-                </div>
-
-                <div class="dm-h-score">
-                    V: {{ item.video_score|default:"-" }}<br>
-                    B: {{ item.brand_score|default:"-" }}
-                </div>
-
-            </a>
-            {% endfor %}
-
-        </div>
-
-    </div>
-
+  </div>
 </div>
-
-</div>
-
-</div>
-
 {% endblock %}
