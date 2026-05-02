@@ -318,6 +318,26 @@ input {
     opacity: 1;
 }
 
+.back-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 999px;
+    border: 1px solid rgba(80, 127, 226, 0.45);
+    background: rgba(18, 39, 84, 0.75);
+    color: #d9e8ff;
+    font-size: 14px;
+    font-weight: 800;
+    transition: transform var(--transition), border-color var(--transition), background var(--transition);
+}
+
+.back-nav-btn:hover {
+    transform: translateY(-1px);
+    border-color: rgba(120, 170, 255, 0.72);
+    background: rgba(26, 50, 104, 0.84);
+}
+
 .hero-title {
     max-width: 1120px;
     margin: 0 auto;
