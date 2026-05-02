@@ -310,9 +310,6 @@ function initDashboardInteractions() {
         });
     });
 
-    const printBtn = document.getElementById("printReportBtn");
-    printBtn?.addEventListener("click", () => window.print());
-
     const refreshBtn = document.getElementById("refreshAnalysisBtn");
     refreshBtn?.addEventListener("click", () => window.location.reload());
 

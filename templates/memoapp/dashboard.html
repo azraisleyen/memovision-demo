@@ -39,9 +39,9 @@
       </div>
 
       <div class="dm-card">
-        <div class="dm-card-header"><h3>📄 Kısa Analiz Raporu</h3><button class="dm-btn" id="printReportBtn">Tarayıcıdan Yazdır</button></div>
+        <div class="dm-card-header"><h3>📄 Kısa Analiz Raporu</h3><button class="dm-btn" id="downloadReportBtn" onclick="window.location.href='{% url 'download_report' analysis.pk %}'">PDF'i İndir</button></div>
         <p class="dm-helper">Farklı sektör raporu formatına benzer şekilde özet skorlar, metrikler ve öncelikli aksiyonlar gösterilir.</p>
-        <iframe class="dm-report-frame" src="{% url 'download_report' analysis.pk %}#toolbar=0"></iframe>
+        {% if analysis.report_pdf %}<iframe class="dm-report-frame" src="{{ analysis.report_pdf.url }}#toolbar=0&navpanes=0"></iframe>{% else %}<div class="dm-agent-box">Rapor henüz hazır değil.</div>{% endif %}
       </div>
     </div>
 
