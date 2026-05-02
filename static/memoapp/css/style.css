@@ -915,7 +915,7 @@ input {
 .na-score-head,
 .na-kpi-head {
     color: #9db6df;
-    font-size: 18px;
+    font-size: 13px;
     font-weight: 500;
 }
 
@@ -927,7 +927,7 @@ input {
 }
 
 .na-score-value {
-    font-size: 52px;
+    font-size: 26px;
     font-weight: 900;
     line-height: 1;
     letter-spacing: -0.02em;
@@ -943,14 +943,14 @@ input {
 
 .na-score-outof {
     color: #d8e6ff;
-    font-size: 40px;
+    font-size: 18px;
     font-weight: 500;
 }
 
 .na-kpi-value {
     margin-top: 8px;
     color: #f2f7ff;
-    font-size: 46px;
+    font-size: 26px;
     font-weight: 900;
     line-height: 1;
 }
