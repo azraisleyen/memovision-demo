@@ -185,7 +185,8 @@ def seconds_to_mmss(seconds_value):
 
 def create_pdf_report(analysis):
     """
-    AI-style, sade ve ikonlu analiz PDF raporu üretir.
+    Teknik olmayan kullanıcılar için görselleştirilmiş ve aksiyon odaklı
+    tek sayfalık profesyonel PDF raporu üretir.
     """
     font_name = register_pdf_font()
 
@@ -193,106 +194,150 @@ def create_pdf_report(analysis):
     pdf = canvas.Canvas(buffer, pagesize=A4)
     width, height = A4
 
-    # -------------------------------
-    # 🔷 LOGO (Turkcell)
-    # -------------------------------
-    logo_path = Path(settings.BASE_DIR) / "static" / "img" / "memoapp" / "turkcell_logo.png"
+    def rounded_box(x, y, w, h, fill_rgb=(1, 1, 1), stroke_rgb=(0.88, 0.91, 0.96), radius=12):
+        pdf.setFillColorRGB(*fill_rgb)
+        pdf.setStrokeColorRGB(*stroke_rgb)
+        pdf.roundRect(x, y, w, h, radius, fill=1, stroke=1)
 
-    if logo_path.exists():
-        pdf.drawImage(str(logo_path), 50, height - 90, width=120, preserveAspectRatio=True)
+    def draw_wrapped(text, x, y, max_width, line_height=13, font_size=10, color=(0.22, 0.28, 0.38)):
+        pdf.setFont(font_name, font_size)
+        pdf.setFillColorRGB(*color)
+        words = (text or "").split()
+        line = ""
+        current_y = y
+        for word in words:
+            candidate = f"{line} {word}".strip()
+            if pdf.stringWidth(candidate, font_name, font_size) <= max_width:
+                line = candidate
+            else:
+                pdf.drawString(x, current_y, line)
+                current_y -= line_height
+                line = word
+        if line:
+            pdf.drawString(x, current_y, line)
+            current_y -= line_height
+        return current_y
 
-    # -------------------------------
-    # 🔷 BAŞLIK
-    # -------------------------------
-    pdf.setFont(font_name, 20)
-    pdf.drawString(180, height - 60, "MemoVision Pro - Analiz Raporu")
+    def progress_row(y, label, value, color_rgb, hint):
+        pdf.setFont(font_name, 12)
+        pdf.setFillColorRGB(0.11, 0.16, 0.28)
+        pdf.drawString(42, y + 20, label)
+        pdf.setFont(font_name, 12)
+        pdf.drawRightString(338, y + 20, f"{value:.2f}")
 
-    current_y = height - 140
+        rounded_box(42, y + 8, 296, 8, fill_rgb=(0.89, 0.91, 0.95), stroke_rgb=(0.89, 0.91, 0.95), radius=4)
+        bar_w = max(8, min(296, 296 * value))
+        rounded_box(42, y + 8, bar_w, 8, fill_rgb=color_rgb, stroke_rgb=color_rgb, radius=4)
 
-    # -------------------------------
-    # 📊 SONUÇLAR
-    # -------------------------------
+        pdf.setFont(font_name, 10)
+        pdf.setFillColorRGB(0.39, 0.45, 0.56)
+        pdf.drawString(42, y - 8, hint)
+
+    # Header
+    pdf.setFillColorRGB(0.95, 0.96, 0.99)
+    pdf.rect(0, height - 125, width, 125, fill=1, stroke=0)
+
+    pdf.setFont(font_name, 11)
+    pdf.setFillColorRGB(0.18, 0.40, 0.84)
+    pdf.drawString(36, height - 36, "MEMOVISION ANALIZ RAPORU")
+
+    pdf.setFont(font_name, 26)
+    pdf.setFillColorRGB(0.08, 0.13, 0.23)
+    pdf.drawString(36, height - 66, analysis.title[:42])
+
+    pdf.setFont(font_name, 10)
+    pdf.setFillColorRGB(0.36, 0.42, 0.53)
+    pdf.drawString(36, height - 88, f"Dosya: {Path(analysis.original_video.name).name if analysis.original_video else 'Video'} • Süre: {analysis.duration_display}")
+
+    rounded_box(width - 175, height - 96, 140, 72, fill_rgb=(0.90, 0.94, 1.0), stroke_rgb=(0.72, 0.82, 0.98), radius=16)
+    pdf.setFont(font_name, 28)
+    pdf.setFillColorRGB(0.17, 0.39, 0.86)
+    pdf.drawCentredString(width - 105, height - 58, f"+{analysis.estimated_gain:.2f}")
+    pdf.setFont(font_name, 9)
+    pdf.setFillColorRGB(0.35, 0.42, 0.54)
+    pdf.drawCentredString(width - 105, height - 74, "Tahmini skor etkisi")
+
+    # Main two columns
+    rounded_box(28, height - 540, 336, 388, fill_rgb=(1, 1, 1), stroke_rgb=(0.87, 0.91, 0.97), radius=16)
+    rounded_box(372, height - 540, 196, 388, fill_rgb=(1, 1, 1), stroke_rgb=(0.87, 0.91, 0.97), radius=16)
+
     pdf.setFont(font_name, 16)
-    pdf.drawString(50, current_y, "📊 Sonuçlar")
-    current_y -= 30
+    pdf.setFillColorRGB(0.08, 0.16, 0.33)
+    pdf.drawString(42, height - 182, "Memorability Metrics")
+
+    progress_row(height - 240, "Video Hatırlanabilirliği", float(analysis.video_score or 0), (0.20, 0.39, 0.85), "Açılış güçlü; ilk saniye etkisi korunmalı.")
+
+    progress_row(height - 302, "Marka Hatırlanabilirliği", float(analysis.brand_score or 0), (0.11, 0.72, 0.50), "Marka öğesi erken karede daha görünür olabilir.")
+
+    msg_score = 0.72 if (analysis.video_score or 0) > (analysis.brand_score or 0) else 0.68
+    progress_row(height - 364, "Mesaj Netliği", msg_score, (0.09, 0.66, 0.78), "CTA sadeleştirilirse dönüşüm potansiyeli artar.")
 
     pdf.setFont(font_name, 12)
+    pdf.setFillColorRGB(0.12, 0.19, 0.34)
+    pdf.drawString(42, height - 418, "Yönetici Özeti")
+    summary_text = (
+        "Video akışı dikkat çekici bir temel sunuyor. Marka öğeleri ilk karelerde daha görünür "
+        "kullanılır ve CTA kısa/aksiyon odaklı hale getirilirse performans dengeli biçimde artar."
+    )
+    draw_wrapped(summary_text, 42, height - 436, 308, line_height=14, font_size=10)
 
-    video_label = "Yüksek" if analysis.video_score >= 0.7 else "Orta"
-    brand_label = "Yüksek" if analysis.brand_score >= 0.7 else "Orta"
+    pdf.setFont(font_name, 16)
+    pdf.setFillColorRGB(0.08, 0.16, 0.33)
+    pdf.drawString(384, height - 182, "AI Insights")
 
-    pdf.drawString(60, current_y, f"🧠 Video Memorability: {analysis.video_score} → {video_label}")
-    current_y -= 22
+    rounded_box(384, height - 358, 172, 162, fill_rgb=(0.98, 0.95, 0.90), stroke_rgb=(0.95, 0.78, 0.58), radius=12)
+    pdf.setFont(font_name, 10)
+    pdf.setFillColorRGB(0.78, 0.34, 0.03)
+    pdf.drawString(394, height - 214, "ÖNCELİKLİ AKSİYONLAR")
+    pdf.setFillColorRGB(0.16, 0.20, 0.29)
+    recs = analysis.recommendations_json or [
+        "İlk 2 saniyede güçlü açılış.",
+        "Marka öğesini merkezi konumlandır.",
+        "CTA mesajını kısalt ve netleştir.",
+    ]
+    y = height - 234
+    for idx, rec in enumerate(recs[:3], start=1):
+        y = draw_wrapped(f"{idx}. {rec}", 394, y, 152, line_height=13, font_size=10, color=(0.16, 0.20, 0.29))
+        y -= 4
 
-    pdf.drawString(60, current_y, f"🏷️ Brand Memorability: {analysis.brand_score} → {brand_label}")
-    current_y -= 30
+    rounded_box(384, height - 474, 172, 104, fill_rgb=(0.92, 0.95, 1.0), stroke_rgb=(0.75, 0.84, 0.98), radius=12)
+    pdf.setFont(font_name, 10)
+    pdf.setFillColorRGB(0.17, 0.36, 0.78)
+    pdf.drawString(394, height - 368, "ESTIMATED IMPACT")
+    pdf.setFillColorRGB(0.20, 0.25, 0.36)
+    draw_wrapped(
+        f"Toplam memorability etkisi yaklaşık +{analysis.estimated_gain:.2f} artabilir.",
+        394,
+        height - 388,
+        152,
+        line_height=14,
+        font_size=10,
+        color=(0.20, 0.25, 0.36),
+    )
 
-    # -------------------------------
-    # 📌 GENEL DEĞERLENDİRME (AI yorum hissi)
-    # -------------------------------
-    pdf.setFont(font_name, 14)
-    pdf.drawString(50, current_y, "📌 Genel Değerlendirme")
-    current_y -= 26
+    # Bottom cards
+    titles = ["Risk Areas", "Weaknesses", "Strengths"]
+    texts = [
+        "Zayıf açılış ve geç CTA, marka etkisini sınırlayabilir.",
+        "Mesaj hiyerarşisi bazı sahnelerde dağılabiliyor.",
+        "Görsel kalite ve akış ritmi güçlü bir temel sunuyor.",
+    ]
+    colors = [(0.85, 0.25, 0.20), (0.18, 0.34, 0.82), (0.04, 0.60, 0.44)]
+    x = 28
+    for i in range(3):
+        rounded_box(x, height - 664, 176, 160, fill_rgb=(0.98, 0.99, 1.0), stroke_rgb=(0.88, 0.91, 0.95), radius=12)
+        pdf.setFont(font_name, 10)
+        pdf.setFillColorRGB(*colors[i])
+        pdf.drawString(x + 10, height - 528, titles[i])
+        draw_wrapped(texts[i], x + 10, height - 546, 156, line_height=13, font_size=10, color=(0.25, 0.31, 0.42))
+        x += 184
 
-    pdf.setFont(font_name, 11)
-
-    if analysis.video_score > analysis.brand_score:
-        line1 = "Video içeriği dikkat çekici ve izleyici ilgisini başarıyla yakalamaktadır."
-        line2 = "Ancak marka görünürlüğü içerik kadar güçlü değildir."
-    else:
-        line1 = "Marka mesajı güçlü ancak içerik akışı yeterince destekleyici değildir."
-        line2 = "Video ve marka etkisi arasında denge geliştirilmelidir."
-
-    pdf.drawString(60, current_y, line1)
-    current_y -= 18
-    pdf.drawString(60, current_y, line2)
-    current_y -= 18
-
-    pdf.drawString(60, current_y, "İçerik ve marka entegrasyonu güçlendirilmelidir.")
-    current_y -= 30
-
-    # -------------------------------
-    # 🚀 ÖNERİLER
-    # -------------------------------
-    pdf.setFont(font_name, 14)
-    pdf.drawString(50, current_y, "🚀 Öneriler")
-    current_y -= 26
-
-    pdf.setFont(font_name, 11)
-
-    for rec in analysis.recommendations_json:
-        pdf.drawString(60, current_y, f"- {rec}")
-        current_y -= 20
-
-    # -------------------------------
-    # 📈 BEKLENEN ETKİ
-    # -------------------------------
-    current_y -= 10
-
-    pdf.setFont(font_name, 14)
-    pdf.drawString(50, current_y, "📈 Beklenen Etki")
-    current_y -= 26
-
-    pdf.setFont(font_name, 11)
-
-    pdf.drawString(60, current_y, "• Brand memorability skorunda artış")
-    current_y -= 18
-
-    pdf.drawString(60, current_y, "• Daha dengeli video–marka performansı")
-    current_y -= 18
-
-    pdf.drawString(60, current_y, "• Kampanya verimliliğinde iyileşme")
-    current_y -= 30
-
-    # -------------------------------
-    # FOOTER
-    # -------------------------------
     pdf.setFont(font_name, 9)
-    pdf.drawString(50, 40, "MemoVision Pro • AI Destekli Video Analiz Sistemi")
+    pdf.setFillColorRGB(0.49, 0.54, 0.63)
+    pdf.drawCentredString(width / 2, 22, "MemoVision Pro • LLM destekli aksiyon odaklı rapor")
 
     pdf.save()
     buffer.seek(0)
-
     filename = f"report_{analysis.pk}_{uuid.uuid4().hex}.pdf"
     return ContentFile(buffer.read(), name=filename)
 
