@@ -33,26 +33,5 @@ PLAN_CONFIG = {
     },
 }
 
-PLAN_ALIASES = {
-    "ucretsiz": "free",
-    "ücretsiz": "free",
-    "baslangic": "starter",
-    "başlangıç": "starter",
-    "starter": "starter",
-    "pro": "pro",
-    "profesyonel": "pro",
-    "enterprise": "enterprise",
-    "kurumsal": "enterprise",
-}
-
-
-def normalize_plan_key(plan_key):
-    if not plan_key:
-        return "free"
-    lowered = str(plan_key).strip().lower()
-    return PLAN_ALIASES.get(lowered, lowered if lowered in PLAN_CONFIG else "free")
-
-
 def get_plan_config(plan_key):
-    normalized = normalize_plan_key(plan_key)
-    return PLAN_CONFIG[normalized]
+    return PLAN_CONFIG.get(plan_key, PLAN_CONFIG["pro"])
