@@ -16,6 +16,7 @@
 
         <form method="post" action="{% url 'register' %}">
             {% csrf_token %}
+            <input type="hidden" name="plan" value="{{ selected_plan }}">
 
             <label class="input-label" for="{{ form.first_name.id_for_label }}">Ad Soyad</label>
             {{ form.first_name }}
