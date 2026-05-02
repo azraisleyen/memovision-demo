@@ -245,35 +245,38 @@
             SAMPLE OUTPUT CARD
         ================================================== -->
         <div class="score-side-card">
+            <div class="section-label">📊 Skorlar</div>
 
-            <div class="section-label">
-                📊 Örnek Çıktı
-            </div>
-
-            <div class="score-grid">
-
-                <!-- VIDEO SCORE -->
-                <div class="score-card">
-                    <div class="score-card-label">Video Skoru</div>
-                    <div class="big-score">0.78 <span>/ 1.00</span></div>
-                    <div class="score-confidence">
-                        Güven: 0.86
+            <div class="na-score-grid {% if not show_brand_score %}single{% endif %}">
+                <div class="na-score-tile">
+                    <div class="na-score-head">Video Skoru</div>
+                    <div class="na-score-value-row">
+                        <div class="na-score-value video">0,74</div>
+                        <div class="na-score-outof">/ 1.00</div>
                     </div>
                 </div>
 
                 {% if show_brand_score %}
-                <!-- BRAND SCORE -->
-                <div class="score-card">
-                    <div class="score-card-label">Marka Skoru</div>
-                    <div class="big-score green">0.81 <span>/ 1.00</span></div>
-                    <div class="score-confidence">
-                        Güven: 0.82
+                <div class="na-score-tile">
+                    <div class="na-score-head">Marka Skoru</div>
+                    <div class="na-score-value-row">
+                        <div class="na-score-value brand">0,00</div>
+                        <div class="na-score-outof">/ 1.00</div>
                     </div>
                 </div>
                 {% endif %}
-
             </div>
 
+            <div class="na-kpi-grid {% if not show_brand_score %}single{% endif %}">
+                <div class="na-kpi-tile">
+                    <div class="na-kpi-head">Güven</div>
+                    <div class="na-kpi-value">0,88</div>
+                </div>
+                <div class="na-kpi-tile">
+                    <div class="na-kpi-head">Tahmini Etki</div>
+                    <div class="na-kpi-value">+0,18</div>
+                </div>
+            </div>
         </div>
 
 
