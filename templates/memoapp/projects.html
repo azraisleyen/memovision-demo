@@ -1,49 +1,52 @@
 {% extends "memoapp/dashboard_base.html" %}
 {% load static %}
-{% block title %}Geçmiş Projeler{% endblock %}
+{% block body_page %}projects{% endblock %}
+{% block title %}Geçmiş Analizler{% endblock %}
 
 {% block dashboard_content %}
-<div class="split-page">
-    <div></div>
+<div class="projects-page">
+    <div class="projects-head">
+        <h1>Geçmiş Analizler</h1>
+        <p>Gerçek veritabanı yoktur; bu liste frontend içinde tanımlı örnek geçmiş analizlerden oluşur.</p>
+    </div>
 
-    <div class="right-column-page">
-        <div class="page-head compact">
-            <h1>Geçmiş Projeler</h1>
-            <p>Tüm analiz sonuçlarınız ve skorları</p>
-        </div>
-
-        <div class="project-list">
-            {% for analysis in analyses %}
-                <a href="{% url 'dashboard' analysis.pk %}" class="project-card-link">
-                    <div class="project-card">
-                        <div class="project-left">
-                            <div class="project-thumb">
-                                {% if analysis.thumbnail %}
-                                    <img src="{{ analysis.thumbnail.url }}" alt="Thumbnail">
-                                {% else %}
-                                    ▶
-                                {% endif %}
-                            </div>
-
-                            <div>
-                                <div class="project-title">{{ analysis.title }}</div>
-                                <div class="project-meta">
-                                    {{ analysis.duration_display }} • {{ analysis.get_status_display }}
-                                </div>
-                                <div class="project-time">{{ analysis.created_at|timesince }} önce</div>
-                            </div>
+    <div class="projects-list">
+        {% for analysis in analyses %}
+            <a href="{% url 'dashboard' analysis.pk %}" class="projects-card-link" aria-label="{{ analysis.title }} analizini aç">
+                <article class="projects-card">
+                    <div class="projects-card-main">
+                        <div class="projects-icon-box" aria-hidden="true">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7l-5-5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M14 2v5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="m10 16 2-2 2 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 14v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
                         </div>
 
-                        <div class="project-scores">
-                            <div>Video: <span>{{ analysis.video_score|floatformat:1 }}</span></div>
-                            <div>Marka: <span>{{ analysis.brand_score|floatformat:1 }}</span></div>
+                        <div class="projects-content">
+                            <h3 class="projects-title">{{ analysis.title }}</h3>
+                            <p class="projects-meta">
+                                {{ analysis.duration_display }} · {{ analysis.get_status_display }} · {{ analysis.created_at|timesince }} önce
+                            </p>
                         </div>
                     </div>
-                </a>
-            {% empty %}
-                <div class="empty-box">Henüz analiz yok.</div>
-            {% endfor %}
-        </div>
+
+                    <div class="projects-score-wrap">
+                        <div class="projects-score-pill">
+                            <span class="label">Video</span>
+                            <span class="value">{{ analysis.video_score|floatformat:2 }}</span>
+                        </div>
+                        <div class="projects-score-pill">
+                            <span class="label">Marka</span>
+                            <span class="value">{{ analysis.brand_score|floatformat:2 }}</span>
+                        </div>
+                    </div>
+                </article>
+            </a>
+        {% empty %}
+            <div class="empty-box">Henüz geçmiş analiz bulunmuyor.</div>
+        {% endfor %}
     </div>
 </div>
 {% endblock %}
