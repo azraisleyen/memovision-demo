@@ -27,6 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function initPage() {
     const page = document.body.dataset.page;
+    initFlashMessages();
 
     switch (page) {
         case "new-analysis":
@@ -35,7 +36,6 @@ function initPage() {
             break;
 
         case "dashboard":
-            initFlashMessages();
             initDashboardInteractions();
             break;
 
@@ -262,7 +262,7 @@ function generateThumbnail(file) {
 
 function initFlashMessages() {
 
-    const messages = document.querySelectorAll(".message-item");
+    const messages = document.querySelectorAll(".message-item, .dm-success");
     if (!messages.length) return;
 
     setTimeout(() => {
@@ -271,6 +271,12 @@ function initFlashMessages() {
             el.style.transform = "translateY(-8px)";
         });
     }, 2500);
+
+    setTimeout(() => {
+        messages.forEach(el => {
+            el.style.display = "none";
+        });
+    }, 2900);
 }
 
 

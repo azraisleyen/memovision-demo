@@ -1555,6 +1555,7 @@ input {
     color: #6ee7b7;
     padding: 10px 16px;
     border-radius: 999px;
+    transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
 .dm-grid {
