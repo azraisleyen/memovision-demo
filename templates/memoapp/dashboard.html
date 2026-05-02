@@ -6,10 +6,9 @@
 <div class="dashboard-modern">
   <div class="dm-header">
     <div>
-      <div class="dm-badge">● Analiz Sonuçları</div>
+      
       <h1 class="dm-title">{{ analysis.title|default:"Analiz Dashboard" }}</h1>
-      <p class="dm-subtitle">Yönetici özeti: Videonun akılda kalıcılığını artırmak için sade, uygulanabilir aksiyonlar.</p>
-      <p class="dm-subtitle-2">Tek demo video üzerinden sentetik skor, zaman bazlı iyileştirme önerileri ve kısa analiz raporu önizlemesi.</p>
+      
     </div>
     <div class="dm-actions">
       <form method="post" action="{% url 'rerun_analysis' analysis.pk %}" class="dm-inline-form">
