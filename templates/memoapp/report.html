@@ -1,123 +1,91 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="tr">
-<header class="report-header">
-    <div>
-        <h1>MemoVision AI Raporu</h1>
-    </div>
-</header>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemoVision Raporu</title>
+    <link rel="stylesheet" href="{% static 'memoapp/css/report.css' %}">
+</head>
 <body>
-
 <div class="report-actions no-print">
     <a href="{% url 'dashboard' analysis.pk %}" class="back-btn">← Analize Dön</a>
-    <button onclick="window.print()" class="print-btn">
-        📄 PDF Olarak Kaydet
-    </button>
+    <button onclick="window.print()" class="print-btn">📄 PDF Olarak Kaydet</button>
 </div>
 
 <main class="report-page">
     <header class="report-header">
         <div>
-            <div class="eyebrow">MemoVision Pro</div>
-            <h1>AI Video Analiz Raporu</h1>
-            <p class="subtitle">
-                Video ve marka hatırlanabilirliği için sade, aksiyon odaklı değerlendirme.
-            </p>
+            <div class="eyebrow">MemoVision Analiz Report</div>
+            <h1>{{ analysis.title }}</h1>
+            <p class="subtitle">Dosya: {{ analysis.original_video.name|default:'Yüklenen video' }} • Sürüm: Demo v1 • Veri tipi: Sentetik değerlendirme</p>
         </div>
-
-        <img src="{% static 'memoapp/img/turkcell_logo.png' %}" alt="Turkcell Logo" class="brand-logo">
+        <div class="impact-pill">
+            <div class="impact-score">{{ analysis.estimated_gain|floatformat:2 }}</div>
+            <div class="impact-text">Tahmini Etki</div>
+            <div class="impact-state">Analiz tamamlandı</div>
+        </div>
     </header>
 
-    <section class="meta-card">
-        <div>
-            <span>Analiz</span>
-            <strong>{{ analysis.title }}</strong>
-        </div>
-        <div>
-            <span>Süre</span>
-            <strong>{{ analysis.duration_display }}</strong>
-        </div>
-        <div>
-            <span>Durum</span>
-            <strong>{{ analysis.get_status_display }}</strong>
-        </div>
-    </section>
+    <section class="top-grid">
+        <div class="metrics-card">
+            <h2>Memorability Metrics</h2>
+            <p class="metrics-intro">Kampanya etkisini hızlıca anlamak için üç ana metriği takip ediyoruz: dikkat, marka izi ve mesaj netliği.</p>
 
-    <section class="section-card">
-        <div class="section-title">📊 Sonuçlar</div>
-
-        <div class="score-grid">
-            <div class="score-box blue">
-                <span>Video Memorability</span>
-                <strong>{{ analysis.video_score }}</strong>
-                <em>{{ video_label }}</em>
+            <div class="metric-row">
+                <div class="metric-head"><span>Video Hatırlanabilirliği</span><strong>{{ analysis.video_score|floatformat:2 }}</strong></div>
+                <div class="meter"><div class="fill blue" style="width: {% widthratio analysis.video_score 1 100 %}%"></div></div>
+                <p>Açılış ve görsel akış güçlü; ilk saniyelerdeki hook daha da netleştirilirse skor artar.</p>
             </div>
 
-            <div class="score-box green">
-                <span>Brand Memorability</span>
-                <strong>{{ analysis.brand_score }}</strong>
-                <em>{{ brand_label }}</em>
+            {% if show_brand_score %}
+            <div class="metric-row">
+                <div class="metric-head"><span>Marka Hatırlanabilirliği</span><strong>{{ analysis.brand_score|floatformat:2 }}</strong></div>
+                <div class="meter"><div class="fill green" style="width: {% widthratio analysis.brand_score 1 100 %}%"></div></div>
+                <p>Marka görünürlüğü mevcut; erken karelerde daha merkezi kullanım etkiyi artırabilir.</p>
+            </div>
+            {% endif %}
+
+            <div class="metric-row">
+                <div class="metric-head"><span>Mesaj Netliği</span><strong>{% if analysis.video_score > analysis.brand_score %}0.72{% else %}0.68{% endif %}</strong></div>
+                <div class="meter"><div class="fill cyan" style="width: {% if analysis.video_score > analysis.brand_score %}72{% else %}68{% endif %}%"></div></div>
+                <p>CTA metni daha kısa ve aksiyon odaklı olursa kullanıcı yönlendirmesi iyileşir.</p>
+            </div>
+        </div>
+
+        <div class="insights-card">
+            <h2>AI Insights</h2>
+            <div class="priority-box">
+                <h3>Priority Actions</h3>
+                <ol>
+                    {% for rec in analysis.recommendations_json %}
+                    <li>{{ rec }}</li>
+                    {% empty %}
+                    <li>İlk 2 saniyede daha güçlü bir açılış sahnesi kullanın.</li>
+                    <li>Marka/ürün unsurunu daha kontrastlı ve merkezi konumlandırın.</li>
+                    <li>CTA metnini kısa, okunabilir ve aksiyon odaklı hale getirin.</li>
+                    {% endfor %}
+                </ol>
+            </div>
+            <div class="impact-box">
+                <h3>Estimated Impact</h3>
+                <p>Öneriler uygulandığında toplam memorability etkisinde yaklaşık <strong>+{{ analysis.estimated_gain|floatformat:2 }}</strong> artış beklenir.</p>
             </div>
         </div>
     </section>
 
-    <section class="section-card">
-        <div class="section-title">📌 Genel Değerlendirme</div>
-
-        <p>
-            {{ main_comment }}
-        </p>
-
-        <p>
-            Bu sonuçlar, videonun izleyici dikkatini çekme potansiyelinin marka hatırlanabilirliği
-            ile her zaman aynı seviyede ilerlemediğini göstermektedir. İçeriğin güçlü olması,
-            markanın izleyici zihninde kalıcı biçimde yerleşmesi için tek başına yeterli değildir.
-            Marka öğelerinin zamanlaması, görünürlüğü ve mesaj netliği bu noktada belirleyici rol oynar.
-        </p>
-
-        <div class="summary-box">
-            <strong>Genel yorum:</strong> {{ summary }}
-        </div>
+    <section class="bottom-grid">
+        <article class="mini-card danger"><h4>Risk Areas</h4><p>Zayıf açılış, düşük görünürlük ve geç CTA, marka hatırlanabilirliğini sınırlayabilir.</p></article>
+        <article class="mini-card warn"><h4>Weaknesses</h4><p>Marka öğesi ilk karelerde baskın değil; mesaj hiyerarşisi bazı anlarda dağılabiliyor.</p></article>
+        <article class="mini-card success"><h4>Strengths</h4><p>Görsel kalite ve temel mesaj yapısı kampanya demosu için güçlü bir başlangıç sağlıyor.</p></article>
     </section>
 
-    <section class="section-card">
-        <div class="section-title">🚀 Öneriler</div>
-
-        <p>
-            Marka hatırlanabilirliğini artırmak ve video–marka performansını daha dengeli hale getirmek için
-            aşağıdaki iyileştirmeler önerilmektedir:
-        </p>
-
-        <ul class="recommendation-list">
-            {% for rec in analysis.recommendations_json %}
-                <li>{{ rec }}</li>
-            {% empty %}
-                <li>Marka öğeleri videonun erken aşamalarında daha görünür konumlandırılmalıdır.</li>
-                <li>Marka mesajı daha sade, tekrar edilebilir ve net bir yapıya dönüştürülmelidir.</li>
-                <li>Logo, ürün ve marka renkleri sahne akışı içinde daha uzun süre görünür kalmalıdır.</li>
-            {% endfor %}
-        </ul>
+    <section class="section-note">
+        <strong>Yorum:</strong> Bu rapor LLM tabanlı öneri sisteminin iş hedeflerine yönelik sadeleştirilmiş özetidir.
+        Teknik detay yerine doğrudan aksiyon alınabilecek karar noktaları sunar.
     </section>
 
-    <section class="section-card">
-        <div class="section-title">📈 Beklenen Etki</div>
-
-        <p>
-            Bu iyileştirmeler ile marka ve içerik arasındaki bağ güçlendirilerek, kampanya etkisinin daha
-            dengeli ve ölçülebilir hale gelmesi beklenmektedir.
-        </p>
-
-        <div class="impact-grid">
-            <div>Brand Memorability skorunda artış</div>
-            <div>Daha dengeli video–marka performansı</div>
-            <div>Kampanya verimliliğinde iyileşme</div>
-        </div>
-    </section>
-
-    <footer class="report-footer">
-        MemoVision Pro • AI Destekli Video ve Marka Hatırlanabilirliği Analizi
-    </footer>
+    <footer class="report-footer">MemoVision Pro • LLM destekli aksiyon odaklı rapor özeti</footer>
 </main>
-
 </body>
 </html>

@@ -20,7 +20,7 @@
         </h1>
 
         <p class="dm-subtitle">
-Jüri odaklı çıktı: Problem → Insight → Öneri → Beklenen Etki zinciri
+            Yönetici özeti: Videonun akılda kalıcılığını artırmak için sade, uygulanabilir aksiyonlar.
         </p>
     </div>
 
@@ -38,6 +38,19 @@ Jüri odaklı çıktı: Problem → Insight → Öneri → Beklenen Etki zinciri
 <div class="dm-left">
 
     <!-- VIDEO -->
+    <div class="dm-card">
+
+        <div class="dm-card-title">✨ Hızlı Özet</div>
+        <div class="dm-summary">
+            {% if analysis.video_score >= 0.75 %}
+                Video açılışı güçlü. Mesaj netliği korunurken marka görünürlüğü artırılırsa etki yükselir.
+            {% else %}
+                Açılış etkisini güçlendirip ilk saniyelerde dikkat toplayan bir sahne önerilir.
+            {% endif %}
+        </div>
+
+    </div>
+
     <div class="dm-card">
 
         <div class="dm-card-title">🎬 Analiz Videosu</div>
