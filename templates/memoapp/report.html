@@ -9,8 +9,7 @@
 </head>
 <body>
 <div class="report-actions no-print">
-    <a href="{% url 'dashboard' analysis.pk %}" class="back-btn">← Analize Dön</a>
-    <button onclick="window.print()" class="print-btn">📄 PDF Olarak Kaydet</button>
+    <a href="{% url 'download_report' analysis.pk %}" class="print-btn">📄 PDF Olarak Kaydet</a>
 </div>
 
 <main class="report-page">
