@@ -283,13 +283,17 @@ input {
 }
 
 .logo-icon {
-    width: 44px;
-    height: 44px;
+    width: 56px;
+    height: 56px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     flex-shrink: 0;
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 6px;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
 }
 
 .logo-icon img {
@@ -575,13 +579,17 @@ input {
 }
 
 .brand-icon {
-    width: 44px;
-    height: 44px;
+    width: 56px;
+    height: 56px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     flex-shrink: 0;
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 6px;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
 }
 
 .brand-icon img {
@@ -1875,7 +1883,6 @@ input {
 
 
 .auth-logo .logo-icon {
-    width: 44px;
-    height: 44px;
+    width: 56px;
+    height: 56px;
 }
-
