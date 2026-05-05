@@ -1,4 +1,5 @@
 {% extends "memoapp/base.html" %}
+{% load static %}
 
 {% block title %}Planlar | MemoVision Pro{% endblock %}
 {% block body_page %}public-plans{% endblock %}
@@ -7,7 +8,7 @@
 <section class="plans-page">
     <header class="landing-header">
         <a href="{% url 'landing' %}" class="logo">
-            <span class="logo-icon">▶</span>
+            <span class="logo-icon"><img src="{% static 'memoapp/img/logo.png' %}" alt="MemoVision logo"></span>
             <span class="logo-text">MemoVision Pro</span>
         </a>
 
