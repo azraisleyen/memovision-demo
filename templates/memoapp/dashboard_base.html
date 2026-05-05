@@ -30,7 +30,7 @@
                 <div class="plan-sub">{{ remaining_text|cut:" " }} analiz hakkı</div>
                 
                 <div class="progress-bar"><div class="progress-fill" style="width:{{ progress_pct }}%"></div></div>
-                <a href="{% url 'settings_page' %}" class="plan-link">Planları Gör →</a>
+                <a href="{% url 'public_plans' %}" class="plan-link">Planları Gör →</a>
             </div>
             <a href="{% url 'logout' %}" class="nav-item"><span>↪</span>Çıkış</a>
         </div>

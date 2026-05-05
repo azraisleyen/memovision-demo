@@ -95,6 +95,24 @@ def public_plans(request):
     return render(request, "memoapp/public_plans.html", {"plans": plans})
 
 
+@login_required
+def select_plan(request, plan_key):
+    if plan_key not in PLAN_CONFIG:
+        messages.error(request, "Geçersiz plan seçimi.")
+        return redirect("public_plans")
+
+    subscription = _get_or_create_subscription(request.user)
+    if subscription.plan != plan_key:
+        subscription.plan = plan_key
+        subscription.plan_started_at = timezone.now()
+        subscription.save(update_fields=["plan", "plan_started_at"])
+        messages.success(request, f"{PLAN_CONFIG[plan_key]['name']} planına geçiş yapıldı.")
+    else:
+        messages.info(request, f"Zaten {PLAN_CONFIG[plan_key]['name']} planını kullanıyorsunuz.")
+
+    return redirect("settings_page")
+
+
 class CustomLoginView(LoginView):
     template_name = "memoapp/login.html"
     authentication_form = LoginForm

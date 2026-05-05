@@ -76,9 +76,32 @@
       </div>
 
       <div class="dm-card"><div class="dm-card-title">✨ Generative AI Öneri Modülü</div>
-        <p class="dm-helper">Konuşma paneli değil; skorları iyileştirmek için öneri üretir.</p>
-        <div class="dm-ai-box">Analiz başlatıldığında Generative AI modülü, video ve marka hatırlanabilirliğini artırmaya yönelik kısa ve uygulanabilir öneriler sunacaktır.</div>
-        <div class="dm-ai-box muted"><strong>ÖNERİ MANTIĞI</strong><br>Bu demo sürümünde öneriler statiktir. Gerçek sistemde model skorları, zaman bazlı bulgular ve görsel/metinsel sinyaller rapor formatına dönüştürülür.</div>
+        <p class="dm-helper">Bu modül, aynı videonun tüm analiz sinyallerini birleştirerek zaman bağımsız, stratejik aksiyon önerileri üretir.</p>
+        <div class="dm-ai-box"><strong>Analiz Özeti (Genel):</strong>
+          {% if analysis.video_score >= 0.75 %}
+            Video hatırlanabilirliği güçlü.
+          {% else %}
+            Video hatırlanabilirliğini artırmak için iyileştirme fırsatı var.
+          {% endif %}
+          {% if show_brand_score %}
+            {% if analysis.brand_score >= 0.70 %}
+              Marka görünürlüğü dengeli.
+            {% else %}
+              Marka hatırlanabilirliği için ek vurgu önerilir.
+            {% endif %}
+          {% endif %}
+        </div>
+        <div class="dm-ai-box muted"><strong>Generative AI Stratejik Öneriler</strong><br>
+          {% if analysis.recommendations_json %}
+            <ul>
+              {% for rec in analysis.recommendations_json %}
+                <li>{{ rec }}</li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            Bu analiz için stratejik öneri çıktısı henüz üretilmedi. Analizi yenileyerek tekrar deneyin.
+          {% endif %}
+        </div>
       </div>
 
       {% if analysis.heatmap %}<div class="dm-card"><div class="dm-card-title">🔥 Heatmap</div><img src="{{ analysis.heatmap.url }}" class="dm-img"></div>{% endif %}
