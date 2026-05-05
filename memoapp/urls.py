@@ -7,6 +7,7 @@ urlpatterns = [
     # PUBLIC
     path("", views.landing, name="landing"),
     path("plans/", views.public_plans, name="public_plans"),
+    path("plans/select/<str:plan_key>/", views.select_plan, name="select_plan"),
 
     # AUTH
     path("login/", views.CustomLoginView.as_view(), name="login"),
