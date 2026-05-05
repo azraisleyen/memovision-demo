@@ -76,8 +76,8 @@
       </div>
 
       <div class="dm-card"><div class="dm-card-title">✨ Generative AI Öneri Modülü</div>
-        <p class="dm-helper">Aşağıdaki öneriler bu analiz sonucundan üretilmiştir ve uygulanabilir aksiyon adımları içerir.</p>
-        <div class="dm-ai-box"><strong>Analiz Özeti:</strong>
+        <p class="dm-helper">Bu modül, aynı videonun tüm analiz sinyallerini birleştirerek zaman bağımsız, stratejik aksiyon önerileri üretir.</p>
+        <div class="dm-ai-box"><strong>Analiz Özeti (Genel):</strong>
           {% if analysis.video_score >= 0.75 %}
             Video hatırlanabilirliği güçlü.
           {% else %}
@@ -91,7 +91,7 @@
             {% endif %}
           {% endif %}
         </div>
-        <div class="dm-ai-box muted"><strong>Analiz Sonucu Önerileri</strong><br>
+        <div class="dm-ai-box muted"><strong>Generative AI Stratejik Öneriler</strong><br>
           {% if analysis.recommendations_json %}
             <ul>
               {% for rec in analysis.recommendations_json %}
@@ -99,7 +99,7 @@
               {% endfor %}
             </ul>
           {% else %}
-            Bu analiz için öneri çıktısı henüz üretilmedi. Analizi yenileyerek tekrar deneyin.
+            Bu analiz için stratejik öneri çıktısı henüz üretilmedi. Analizi yenileyerek tekrar deneyin.
           {% endif %}
         </div>
       </div>
