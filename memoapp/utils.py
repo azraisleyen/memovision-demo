@@ -116,8 +116,8 @@ def build_demo_analysis_payload(title, duration_seconds):
     rng = Random(seed_text)
 
     # 🔥 Demo skorlar (jüri sunumu için tutarlı ve anlamlı)
-    video_score = 0.74
-    brand_score = 0.68
+    video_score = 0.66
+    brand_score = 0.55
     video_confidence = round(rng.uniform(0.82, 0.91), 2)
     brand_confidence = round(rng.uniform(0.80, 0.89), 2)
     estimated_gain = 0.18
