@@ -210,7 +210,7 @@ def build_dashboard_suggestions(analysis):
         "time": "0:12–0:18",
         "seek": 12,
         "title": "Öneri: CTA ve mesaj hiyerarşisini netleştir",
-        "impact": "+0.06",
+        "impact": "+0.08",
         "text": "Kapanış mesajı kısa, okunabilir ve aksiyon odaklı olmalıdır.",
     })
 
